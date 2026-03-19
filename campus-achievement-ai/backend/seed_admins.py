@@ -30,14 +30,6 @@ def seed_super_admins():
                 "year": 4
             },
             {
-                "name": "Rahul Bariki (Typosafe)",
-                "email": "rahulbarik124@gmail.com",
-                "password": get_password_hash("Rahul24$$$$"),
-                "role": "super_admin",
-                "department": "Founding Editor",
-                "year": 4
-            },
-            {
                 "name": "Rahul Bariki",
                 "email": "23x51a3302@srecnandyal.edu.in",
                 "password": get_password_hash("Rahul24$$$$"),
