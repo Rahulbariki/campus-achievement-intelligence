@@ -7,7 +7,7 @@ auth_router = APIRouter()
 
 super_admin_allowlist = {
     'rahulbariki24@gmail.com',
-    '23x51a3302@gmail.com'
+    '23x51a3302@srecnandyal.edu.in'
 }
 
 DEFAULT_SUPER_ADMIN_PASSWORD = 'SuperPass123!'
@@ -19,7 +19,7 @@ def register(user: UserCreate):
 
     super_admin_allowlist = {
         'rahulbariki24@gmail.com',
-        '23x51a3302@gmail.com'
+        '23x51a3302@srecnandyal.edu.in'
     }
 
     domain = user.email.split('@')[-1].lower()
@@ -52,7 +52,7 @@ def seed_super_admins(request: SeedSuperAdminRequest):
     """Create or update special super-admin accounts with a shared default password."""
     super_admin_allowlist = [
         'rahulbariki24@gmail.com',
-        '23x51a3302@gmail.com'
+        '23x51a3302@srecnandyal.edu.in'
     ]
 
     hashed = get_password_hash(request.default_password)
