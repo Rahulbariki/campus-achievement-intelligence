@@ -1,14 +1,12 @@
 fastapi
-# uvicorn removed for serverless compatibility
 pymongo
 python-dotenv
-passlib[bcrypt]
 python-jose[cryptography]
 pydantic
+email-validator
 cloudinary
 certifi
 mongomock
 bcrypt
 dnspython
-starlette
 aiofiles

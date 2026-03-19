@@ -1,12 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-import os
-import sys
-
-# Ensure root path can import ai_engine package
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if ROOT_DIR not in sys.path:
-    sys.path.append(ROOT_DIR)
-
 from routes.security import check_role
 from database import certificates, users, participations, press_notes, events
 from bson import ObjectId
@@ -24,21 +16,18 @@ def verify_certificate(certificate_id: str, user: dict = Depends(check_role('adm
 
 @admin_router.post('/generate-press-note')
 def create_press_note(student_email: str, event_name: str, user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):
-    # Fetch student details
     student = users.find_one({'email': student_email})
     if not student:
         raise HTTPException(status_code=404, detail='Student not found')
     
-    # Fetch participation/achievement details
     participation = participations.find_one({'student_email': student_email, 'event_name': event_name})
     if not participation:
         raise HTTPException(status_code=404, detail='Participation record not found')
     
-    # Fetch event details (organizer)
     event = events.find_one({'event_name': event_name})
     organizer = event.get('organizer', 'the organizers') if event else 'the organizers'
     
-    # Generate content
+    # Lazy import to avoid loading heavy modules at startup
     from ai_engine.press_note_generator import generate_press_note, generate_social_media_post
     
     press_text = generate_press_note(
@@ -57,7 +46,6 @@ def create_press_note(student_email: str, event_name: str, user: dict = Depends(
         achievement=participation.get('achievement', 'participation')
     )
     
-    # Save to database
     press_notes.insert_one({
         'student_email': student_email,
         'event_name': event_name,
