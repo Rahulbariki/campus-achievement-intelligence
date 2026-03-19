@@ -22,8 +22,9 @@ app.include_router(event_router, prefix='/api')
 
 # Ensure static certificate dir exists before mounting
 import os
-os.makedirs('certificates', exist_ok=True)
-app.mount('/certificate-files', StaticFiles(directory='certificates'), name='certificates')
+CERT_DIR = '/tmp/certificates' if os.environ.get('VERCEL') else 'certificates'
+os.makedirs(CERT_DIR, exist_ok=True)
+app.mount('/certificate-files', StaticFiles(directory=CERT_DIR), name='certificates')
 
 @app.get('/')
 def root():

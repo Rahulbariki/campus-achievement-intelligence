@@ -126,10 +126,11 @@ def upload_certificate(
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail='File size exceeds 10MB')
 
     # 1. Save Locally for OCR / Audit
-    os.makedirs('certificates', exist_ok=True)
+    CERT_DIR = '/tmp/certificates' if os.environ.get('VERCEL') else 'certificates'
+    os.makedirs(CERT_DIR, exist_ok=True)
     safe_name = os.path.basename(file.filename)
     unique_name = f"{uuid.uuid4().hex}_{safe_name}"
-    file_path = os.path.join('certificates', unique_name)
+    file_path = os.path.join(CERT_DIR, unique_name)
 
     with open(file_path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
