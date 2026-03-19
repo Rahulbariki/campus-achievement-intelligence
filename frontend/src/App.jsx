@@ -44,6 +44,9 @@ function App() {
         <div className="metadata">Vol. 1.0 | Academic Year 2026</div>
         <h1>THE CAMPUS CHRONICLE</h1>
         <p className="drop-cap">A sophisticated Intelligence Dashboard for tracking student achievements, verifying credentials, and predicting success through advanced neural analysis.</p>
+        <div className="metadata" style={{ marginTop: '-1.5rem', marginBottom: '2.5rem', textAlign: 'left', fontStyle: 'italic' }}>
+          By <strong style={{ color: 'var(--ink-black)' }}>Rahul Bariki</strong> | Founder & Super Admin
+        </div>
         <button className="primary-btn" onClick={() => setShowLanding(false)}>Enter Dashboard</button>
       </div>
     );
