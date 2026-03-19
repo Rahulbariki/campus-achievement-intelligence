@@ -10,3 +10,5 @@ certifi
 mongomock
 bcrypt
 dnspython
+starlette
+aiofiles
