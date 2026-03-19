@@ -7,6 +7,7 @@ auth_router = APIRouter()
 
 super_admin_allowlist = {
     'rahulbariki24@gmail.com',
+    'rahulbarik124@gmail.com', # Variant observed in user screenshot
     '23x51a3302@srecnandyal.edu.in'
 }
 
@@ -19,6 +20,7 @@ def register(user: UserCreate):
 
     super_admin_allowlist = {
         'rahulbariki24@gmail.com',
+        'rahulbarik124@gmail.com',
         '23x51a3302@srecnandyal.edu.in'
     }
 
@@ -52,6 +54,7 @@ def seed_super_admins(request: SeedSuperAdminRequest):
     """Create or update special super-admin accounts with a shared default password."""
     super_admin_allowlist = [
         'rahulbariki24@gmail.com',
+        'rahulbarik124@gmail.com',
         '23x51a3302@srecnandyal.edu.in'
     ]
 

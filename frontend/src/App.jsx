@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Login from './components/Login';
+import Register from './components/Register';
 import HODDashboard from './components/HODDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import StudentDashboard from './components/StudentDashboard';
@@ -11,6 +12,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [role, setRole] = useState(localStorage.getItem('role') || '');
+  const [authView, setAuthView] = useState('login'); // 'login' or 'register'
 
   useEffect(() => {
     if (token && role) setUser({ role });
@@ -25,6 +27,11 @@ function App() {
     setToken(data.token);
     setRole(data.role);
     setUser({ role: data.role });
+  };
+
+  const handleRegister = async (formData) => {
+    const response = await axios.post(`${API_BASE}/auth/register`, formData);
+    return response.data;
   };
 
   const logout = () => {
@@ -52,7 +59,20 @@ function App() {
     );
   }
 
-  if (!user) return <Login onLogin={handleLogin} onCancel={() => setShowLanding(true)} />;
+  if (!user) {
+    return authView === 'login' ? (
+      <Login 
+        onLogin={handleLogin} 
+        onSwitchToRegister={() => setAuthView('register')} 
+        onCancel={() => setShowLanding(true)} 
+      />
+    ) : (
+      <Register 
+        onRegister={handleRegister} 
+        onSwitchToLogin={() => setAuthView('login')} 
+      />
+    );
+  }
 
   return (
     <div className="app newsprint-texture">
@@ -80,7 +100,7 @@ function App() {
       <main>
         {role === 'hod' && <HODDashboard token={token} />}
         {role === 'admin' && <AdminDashboard token={token} />}
-        {role === 'super_admin' && <HODDashboard token={token} />}
+        {role === 'super_admin' && <AdminDashboard token={token} />}
         {role === 'student' && <StudentDashboard token={token} />}
       </main>
 

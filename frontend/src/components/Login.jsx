@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function Login({ onLogin }) {
+function Login({ onLogin, onSwitchToRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -46,6 +46,9 @@ function Login({ onLogin }) {
         </div>
         {error && <p className="status-msg" style={{ borderColor: 'var(--editorial-red)', color: 'var(--editorial-red)' }}>{error}</p>}
         <button className="primary-btn full-width shadow-none" type="submit" style={{ marginTop: '1rem' }}>Initiate Session</button>
+        <p className="font-serif" style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem' }}>
+          New student? <a href="#" onClick={(e) => { e.preventDefault(); onSwitchToRegister(); }} style={{ textDecoration: 'underline', fontWeight: 'bold' }}>Enroll in Research</a>
+        </p>
       </form>
     </div>
   );
