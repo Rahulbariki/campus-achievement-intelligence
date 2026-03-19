@@ -1,6 +1,19 @@
+import sys
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import home_router, auth_router, activity_router, admin_router, event_router
+from fastapi.staticfiles import StaticFiles
+
+# Ensure the backend directory is in sys.path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
+
+try:
+    from routes import home_router, auth_router, activity_router, admin_router, event_router
+except ImportError:
+    from .routes import home_router, auth_router, activity_router, admin_router, event_router
+
 
 app = FastAPI(title='Campus Achievement AI Platform')
 

@@ -1,12 +1,7 @@
-import numpy as np
-
 def predict_achievement_success(participations_count: int, wins_count: int, avg_points: float):
     """
-    Predicts the probability of success in future events based on historical performance.
-    In a real system, this would use a trained ML model (e.g., Logistic Regression or Random Forest).
-    For this implementation, we use a weighted probability approach.
+    Simulation of predictor using native Python only (No numpy/heavy ML)
     """
-    
     # Base probability
     prob_participation = min(0.1 + (participations_count * 0.1), 0.95)
     
@@ -42,20 +37,17 @@ def predict_achievement_success(participations_count: int, wins_count: int, avg_
 
 def get_department_performance_trend(monthly_data: list):
     """
-    Simulates a trend analysis for the department.
+    Simulates a trend analysis using native Python.
     """
     if not monthly_data:
         return "Not enough data for trend analysis."
     
-    # Simple linear regression mock
-    x = np.arange(len(monthly_data))
-    y = np.array(monthly_data)
-    
-    if len(y) > 1:
-        slope = np.polyfit(x, y, 1)[0]
-        if slope > 0:
-            return f"Participation is increasing by {round(slope, 2)} events per month on average."
+    if len(monthly_data) > 1:
+        # Simple trend calc
+        diff = (monthly_data[-1] - monthly_data[0]) / len(monthly_data)
+        if diff > 0:
+            return f"Participation is increasing by {round(diff, 2)} events per month on average."
         else:
-            return f"Participation has decreased by {round(abs(slope), 2)} events per month."
+            return f"Participation has decreased by {round(abs(diff), 2)} events per month."
     
     return "Baseline participation established."

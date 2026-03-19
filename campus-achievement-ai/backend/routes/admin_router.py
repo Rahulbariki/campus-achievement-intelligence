@@ -11,7 +11,6 @@ from routes.security import check_role
 from database import certificates, users, participations, press_notes, events
 from bson import ObjectId
 from datetime import datetime
-from ai_engine.press_note_generator import generate_press_note, generate_social_media_post
 
 admin_router = APIRouter()
 
@@ -40,6 +39,8 @@ def create_press_note(student_email: str, event_name: str, user: dict = Depends(
     organizer = event.get('organizer', 'the organizers') if event else 'the organizers'
     
     # Generate content
+    from ai_engine.press_note_generator import generate_press_note, generate_social_media_post
+    
     press_text = generate_press_note(
         student_name=student.get('name'),
         department=student.get('department', 'N/A'),

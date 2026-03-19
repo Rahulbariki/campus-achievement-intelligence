@@ -13,9 +13,8 @@ if ROOT_DIR not in sys.path:
 from models import Event, Participation, Certificate
 from database import events, participations, certificates, audit_logs, notifications, activity_scores
 from routes.security import check_role, get_current_user
-from ai_engine.certificate_ocr import extract_text_from_certificate, auto_verify_certificate
-from ai_engine.achievement_predictor import predict_achievement_success
 from email_utils import send_mail
+
 
 event_router = APIRouter()
 
@@ -318,26 +317,39 @@ def ocr_certificate(event_name: str, student_email: str, file_name: str, user: d
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Certificate not found')
 
     file_path = os.path.join('certificates', file_name)
-    ocr_result = extract_text_from_certificate(file_path)
-    auto = auto_verify_certificate(file_path, [student_email], event_name)
+    # 4. OCR / AI Verification (Lazy Import for Serverless Performance)
+    ocr_result = {'text': '', 'confidence': 0}
+    auto_verified_status = {'verified': False}
+    try:
+        from ai_engine.certificate_ocr import extract_text_from_certificate, auto_verify_certificate
+        ocr_result = extract_text_from_certificate(file_path)
+        auto_verified_status = auto_verify_certificate(ocr_result['text'], student_email, event_name)
+    except Exception as e:
+        print(f"OCR failed or skipped: {e}")
 
-    certificates.update_one({'file_name': file_name}, {'$set': {'ocr_text': ocr_result['text'], 'ocr_confidence': ocr_result['confidence'], 'auto_verified': auto['verified']}})
+    certificates.update_one({'file_name': file_name}, {'$set': {'ocr_text': ocr_result['text'], 'ocr_confidence': ocr_result['confidence'], 'auto_verified': auto_verified_status['verified']}})
 
-    if auto['verified']:
+    if auto_verified_status['verified']:
         certificates.update_one({'file_name': file_name}, {'$set': {'verified': True, 'verified_by': user.get('email'), 'verification_comment': 'Auto OCR verified', 'rejection_reason': None}})
         send_notification(student_email, f"Certificate '{file_name}' automatically verified via OCR.")
 
     return {
         'ocr': ocr_result,
-        'auto_verify': auto
+        'auto_verify': auto_verified_status
     }
 
 @event_router.get('/predict-success/{student_email}')
 def get_prediction(student_email: str, user: dict = Depends(check_role('admin', 'hod', 'super_admin', 'faculty'))):
     score = activity_scores.find_one({'student_email': student_email})
     if not score:
-        # Default prediction for new students
-        prediction = predict_achievement_success(0, 0, 0)
+        # Default prediction
+        # 5. Predict success (Lazy Import)
+        prediction = {'prediction': 'unknown', 'confidence': 0} # Default prediction
+        try:
+            from ai_engine.achievement_predictor import predict_achievement_success
+            prediction = predict_achievement_success(0, 0, 0) # For new students, use default values
+        except Exception as e:
+            print(f"Prediction skipped: {e}")
     else:
         participations_count = score.get('participations', 0)
         wins_count = score.get('wins', 0)
