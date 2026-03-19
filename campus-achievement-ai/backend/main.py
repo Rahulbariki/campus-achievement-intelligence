@@ -26,6 +26,10 @@ CERT_DIR = '/tmp/certificates' if os.environ.get('VERCEL') else 'certificates'
 os.makedirs(CERT_DIR, exist_ok=True)
 app.mount('/certificate-files', StaticFiles(directory=CERT_DIR), name='certificates')
 
+@app.get('/health')
+def health():
+    return {'status': 'healthy'}
+
 @app.get('/')
 def root():
     return {'message': 'Campus Achievement AI Platform'}

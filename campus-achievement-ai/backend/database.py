@@ -6,29 +6,29 @@ import certifi
 MONGO_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017')
 DB_NAME = os.getenv('DB_NAME', 'campus_achievement')
 
-try:
-    # Use certifi for Atlas connection verification if needed
-    if "mongodb+srv" in MONGO_URI:
-        client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
-    else:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
-    
-    # Simple check to confirm connection
-    client.admin.command('ping')
-    print("Database session established with Atlas Cloud")
-except Exception as e:
-    print(f"Cloud connection failed: {e}")
-    try:
-        # Local fallback if cloud fails (for local development)
-        client = MongoClient('mongodb://localhost:27017', serverSelectionTimeoutMS=2000)
-        client.admin.command('ping')
-        print("Using local MongoDB fallback")
-    except:
-        import mongomock
-        client = mongomock.MongoClient()
-        print("Using in-memory mongomock for testing")
+_client = None
 
-db = client[DB_NAME]
+def get_db():
+    global _client
+    if _client is None:
+        try:
+            if "mongodb+srv" in MONGO_URI:
+                _client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+            else:
+                _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
+            _client.admin.command('ping')
+        except Exception as e:
+            print(f"Database connection failed: {e}")
+            import mongomock
+            _client = mongomock.MongoClient()
+    return _client[DB_NAME]
+
+# Define collections as properties or lazy accessors
+class DBProxy:
+    def __getitem__(self, name):
+        return get_db()[name]
+
+db = DBProxy()
 
 users = db['users']
 events = db['events']
