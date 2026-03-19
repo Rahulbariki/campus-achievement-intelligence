@@ -1,0 +1,50 @@
+# Build and distribution
+dist/
+build/
+.next/
+out/
+bin/
+obj/
+
+# Node dependencies
+node_modules/
+package-lock.json
+yarn-error.log
+npm-debug.log*
+
+# Python dependencies
+venv/
+env/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Certificates and data
+certificates/*
+!certificates/.gitkeep
+data/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+backend_error.txt
+backend_output.txt
+vity Dashboard/
+
+# Vercel and other platforms
+.vercel
