@@ -168,7 +168,7 @@ function AdminDashboard({ token }) {
                     </td>
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <a href={`http://localhost:8000/certificate-files/${cert.file_name}`} 
+                        <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
                            target="_blank" rel="noreferrer" className="view-link" style={{ textAlign: 'center' }}>
                           Examine
                         </a>

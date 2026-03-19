@@ -89,6 +89,18 @@ def delete_event(event_name: str, user: dict = Depends(check_role('admin', 'hod'
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Event not found')
     return {'message': 'Event deleted'}
 
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name="dpksazh3t",
+    api_key="696413681477928",
+    api_secret="Wk50a83sZTcpOaFL0LcTSCF7XSg",
+    secure=True
+)
+
 @event_router.post('/upload-certificate')
 def upload_certificate(
     student_email: str,
@@ -113,6 +125,7 @@ def upload_certificate(
     if size > MAX_BYTES:
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail='File size exceeds 10MB')
 
+    # 1. Save Locally for OCR / Audit
     os.makedirs('certificates', exist_ok=True)
     safe_name = os.path.basename(file.filename)
     unique_name = f"{uuid.uuid4().hex}_{safe_name}"
@@ -121,12 +134,21 @@ def upload_certificate(
     with open(file_path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    # 2. Upload to Cloudinary for Persistence
+    try:
+        upload_result = cloudinary.uploader.upload(file_path, folder="campus_certificates")
+        cloud_url = upload_result.get('secure_url')
+    except Exception as e:
+        print(f"Cloudinary upload failed: {e}")
+        cloud_url = None
+
     certificates.insert_one({
         'student_email': student_email,
         'event_name': event_name,
         'achievement': achievement,
         'file_name': unique_name,
         'original_file_name': safe_name,
+        'cloudinary_url': cloud_url,
         'verified': False,
         'verified_by': None,
         'verification_comment': None,
@@ -137,12 +159,13 @@ def upload_certificate(
     audit_logs.insert_one({
         'action': 'upload_certificate',
         'file_name': file.filename,
+        'cloudinary_url': cloud_url,
         'user': user.get('email'),
         'role': user.get('role'),
         'timestamp': datetime.utcnow()
     })
 
-    return {'message': 'Certificate uploaded'}
+    return {'message': 'Certificate uploaded successfully', 'url': cloud_url}
 
 @event_router.get('/certificates')
 def get_certificates(user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):

@@ -164,7 +164,7 @@ function StudentDashboard({ token }) {
                         {cert.verification_comment || cert.rejection_reason || 'Examination in progress...'}
                       </td>
                       <td>
-                        <a href={`http://localhost:8000/certificate-files/${cert.file_name}`} 
+                        <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
                            target="_blank" rel="noreferrer" className="view-link">
                           Examine Proof
                         </a>
