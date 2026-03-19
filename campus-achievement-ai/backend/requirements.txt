@@ -8,3 +8,5 @@ pydantic
 cloudinary
 certifi
 mongomock
+bcrypt
+dnspython
