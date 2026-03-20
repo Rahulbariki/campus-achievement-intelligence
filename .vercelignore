@@ -1,5 +1,4 @@
 # Exclude large redundant folders from Vercel deployment
-ai_engine/
 campus-achievement-ai/
 python/
 dashboard/

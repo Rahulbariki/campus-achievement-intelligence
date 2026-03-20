@@ -4,7 +4,27 @@ import { getDashboardPath, roleOptions } from '../config/roles';
 import { useAuth } from '../context/AuthContext';
 
 function readError(error, fallback) {
-  return error?.response?.data?.detail ?? fallback;
+  const detail = error?.response?.data?.detail;
+  if (typeof detail === 'string' && detail.trim()) {
+    return detail;
+  }
+
+  if (Array.isArray(detail) && detail.length > 0) {
+    return detail
+      .map((item) => item?.msg || item?.message)
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  if (error?.response?.status >= 500) {
+    return 'The authentication service is temporarily unavailable. Please try again in a moment.';
+  }
+
+  if (error?.message === 'Network Error') {
+    return 'Unable to reach the authentication service. Check the backend deployment and try again.';
+  }
+
+  return fallback;
 }
 
 export default function AuthPage() {
