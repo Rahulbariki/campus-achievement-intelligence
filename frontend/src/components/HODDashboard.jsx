@@ -80,13 +80,13 @@ function HODDashboard({ token }) {
   return (
     <div className="dashboard-content">
       <div className="section-header">
-        <div className="metadata">DEPARTMENTAL ANALYTICS | REPORT ID: {new Date().getFullYear()}.ARCH</div>
-        <h2>ACADEMIC LEADERSHIP PORTAL</h2>
-        <p className="font-serif italic">Analyzing student engagement trends, achievement distributions, and predictive success metrics across the department.</p>
+        <p className="eyebrow">Departmental Analytics</p>
+        <h2>Academic Overview</h2>
+        <p className="font-serif">Analyze student engagement, track achievements, and generate AI-driven performance reports.</p>
       </div>
 
-      <div className="filter-container newsprint-texture" style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid var(--ink-black)', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-        <span className="metadata" style={{ marginRight: '1rem' }}>Timeline Filter:</span>
+      <div className="filter-container panel" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <span className="metadata">Timeline:</span>
         {[
           { label: 'All Time', val: null },
           { label: '1 Week', val: 7 },
@@ -96,53 +96,49 @@ function HODDashboard({ token }) {
         ].map((f) => (
           <button 
             key={f.label}
-            className={`small-btn ${filterDays === f.val ? 'primary-btn' : ''}`}
+            className={`small-btn ${filterDays === f.val ? 'primary-button' : 'ghost-button'}`}
             onClick={() => setFilterDays(f.val)}
-            style={{ padding: '0.4rem 1rem', fontSize: '0.7rem' }}
           >
             {f.label}
           </button>
         ))}
-        <div className="metadata" style={{ marginLeft: 'auto', color: 'var(--editorial-red)' }}>
-          Showing: {filterDays ? `Last ${filterDays} Days` : 'All Historical Data'}
-        </div>
       </div>
 
       <div className="grid-container">
         {activityStatus && (
           <section className="stats-row">
-            <div className="stat-card hard-shadow-hover">
-              <div className="metadata" style={{ color: '#15803D' }}>● HIGHLY ENGAGED</div>
-              <h4>ACTIVE COHORT</h4>
-              <p className="large-val">{activityStatus.counts.highly_active}</p>
+            <div className="metric-card">
+              <p className="eyebrow" style={{ color: 'var(--success)' }}>High Engagement</p>
+              <strong>{activityStatus.counts.highly_active}</strong>
+              <p className="small">Students with consistent activity.</p>
             </div>
-            <div className="stat-card hard-shadow-hover">
-              <div className="metadata">○ STEADY PARTICIPATION</div>
-              <h4>MODERATE COHORT</h4>
-              <p className="large-val">{activityStatus.counts.moderate}</p>
+            <div className="metric-card">
+              <p className="eyebrow">Moderate</p>
+              <strong>{activityStatus.counts.moderate}</strong>
+              <p className="small">Students with steady participation.</p>
             </div>
-            <div className="stat-card hard-shadow-hover">
-              <div className="metadata" style={{ color: 'var(--editorial-red)' }}>× LOW ENGAGEMENT</div>
-              <h4>INACTIVE COHORT</h4>
-              <p className="large-val">{activityStatus.counts.inactive}</p>
+            <div className="metric-card">
+              <p className="eyebrow" style={{ color: 'var(--accent)' }}>Low Engagement</p>
+              <strong>{activityStatus.counts.inactive}</strong>
+              <p className="small">Students requiring attention.</p>
             </div>
           </section>
         )}
 
-        <section className="card-section newsprint-texture">
-          <div className="metadata" style={{ marginBottom: '0.5rem' }}>NEURAL ENGINE v4.2</div>
-          <h3>AI STUDENT SUCCESS PREDICTOR</h3>
-          <div className="form-group-stack" style={{ maxWidth: '600px' }}>
+        <section className="panel">
+          <p className="eyebrow">Predictive Analytics</p>
+          <h3>Success Predictor</h3>
+          <div className="form-group-stack">
             <div className="form-group">
-              <label>STUDENT IDENTIFIER (EMAIL)</label>
+              <label>Enter Student Email</label>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <input 
-                  placeholder="e.g., student.name@university.edu" 
+                  placeholder="student@university.edu" 
                   value={predictionMail} 
                   onChange={(e) => setPredictionMail(e.target.value)} 
                 />
-                <button className="primary-btn" onClick={predictSuccess} disabled={loading} style={{ whiteSpace: 'nowrap' }}>
-                  {loading ? 'ANALYZING...' : 'INITIATE PREDICTION'}
+                <button className="primary-button" onClick={predictSuccess} disabled={loading}>
+                  {loading ? 'Analyzing...' : 'Run Prediction'}
                 </button>
               </div>
             </div>
@@ -175,55 +171,57 @@ function HODDashboard({ token }) {
           )}
         </section>
 
-        <section className="card-section newsprint-texture" style={{ gridColumn: 'span 2' }}>
-          <div className="metadata" style={{ marginBottom: '0.5rem' }}>HOD BRIEFING | {filterDays ? `LAST ${filterDays} DAYS` : 'MONTHLY OVERVIEW'}</div>
+        <section className="panel" style={{ gridColumn: 'span 2' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3>MONTHLY ACHIEVEMENT PRESENTATION</h3>
+            <div>
+              <p className="eyebrow">Executive Summary</p>
+              <h3>Performance Briefing</h3>
+            </div>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="primary-btn" onClick={generateBriefing} disabled={briefingLoading}>
-                {briefingLoading ? 'GENERATING...' : 'GENERATE SUMMARY'}
+              <button className="primary-button" onClick={generateBriefing} disabled={briefingLoading}>
+                {briefingLoading ? 'Generating...' : 'Update Briefing'}
               </button>
               {briefing && (
-                <button className="small-btn" onClick={downloadPDF} style={{ background: 'var(--ink-black)', color: 'white' }}>
-                  DOWNLOAD PDF report
+                <button className="ghost-button" onClick={downloadPDF}>
+                  Download PDF
                 </button>
               )}
             </div>
           </div>
 
           {briefing ? (
-            <div className="status-msg" style={{ background: 'white', whiteSpace: 'pre-wrap', fontFamily: 'JetBrains Mono', fontSize: '0.9rem', border: '2px solid var(--ink-black)', padding: '2.5rem' }}>
+            <div className="panel" style={{ background: 'var(--paper-strong)', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.85rem' }}>
                {briefing.briefing}
             </div>
           ) : (
-            <div style={{ padding: '3rem', border: '1px dashed #ccc', textAlign: 'center', fontStyle: 'italic' }}>
-              Select a timeline and click generate to create an AI-powered summary for your monthly presentation.
-            </div>
+            <p className="font-serif italic" style={{ textAlign: 'center', padding: '2rem' }}>
+              Select a timeline and update the briefing to generate an AI-powered summary.
+            </p>
           )}
         </section>
 
-        <section className="table-full-section">
-          <div className="metadata" style={{ marginBottom: '0.5rem' }}>RANKING | SESSION 2026</div>
-          <h3>DEPARTMENT LEADERBOARD</h3>
+        <section className="panel" style={{ gridColumn: 'span 2' }}>
+          <p className="eyebrow">Ranking</p>
+          <h3>Department Leaderboard</h3>
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>RANK</th>
-                  <th>STUDENT IDENTIFIER</th>
-                  <th>PARTICIPATIONS</th>
-                  <th>VICTORIES</th>
-                  <th>TOTAL MERIT POINTS</th>
+                  <th>Rank</th>
+                  <th>Student Email</th>
+                  <th>Events</th>
+                  <th>Wins</th>
+                  <th>Points</th>
                 </tr>
               </thead>
               <tbody>
                 {leaderboard.map((item, idx) => (
                   <tr key={item.student_email}>
-                    <td><span className="font-mono" style={{ fontWeight: 900, fontSize: '1.25rem' }}>#{idx + 1}</span></td>
+                    <td><strong>#{idx + 1}</strong></td>
                     <td className="font-mono">{item.student_email}</td>
                     <td>{item.participations}</td>
                     <td>{item.wins}</td>
-                    <td><strong className="large-val" style={{ fontSize: '1.5rem' }}>{item.total_points}</strong></td>
+                    <td><strong style={{ fontSize: '1.2rem', color: 'var(--accent)' }}>{item.total_points}</strong></td>
                   </tr>
                 ))}
               </tbody>

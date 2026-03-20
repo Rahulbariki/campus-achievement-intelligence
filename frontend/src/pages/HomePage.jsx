@@ -23,20 +23,20 @@ export default function HomePage() {
   return (
     <div className="landing-shell">
       <section className="landing-hero">
-        <p className="eyebrow">Campus Achievement Intelligence Platform</p>
-        <h1>Track achievement, verify proof, and turn campus momentum into visible outcomes.</h1>
+        <p className="eyebrow">Enterprise Intelligence</p>
+        <h1>Campus Achievement Intelligence</h1>
         <p className="landing-copy">
-          CAIP is a full-stack starter platform for student achievement intelligence with
-          role-based workflows, certificate handling, analytics, and AI-powered storytelling.
+          The central hub for tracking, verifying, and analyzing campus achievements.
+          Automated verification, real-time analytics, and AI-driven growth insights.
         </p>
 
         <div className="cta-row">
           <Link className="primary-button" to={isAuthenticated ? dashboardPath : '/login'}>
-            {isAuthenticated ? 'Open Workspace' : 'Launch Secure Access'}
+            {isAuthenticated ? 'Go to Dashboard' : 'Sign In'}
           </Link>
-          <a className="ghost-button" href="#architecture">
-            Explore Architecture
-          </a>
+          <Link className="ghost-button" to="/login">
+            Register Portal
+          </Link>
         </div>
       </section>
 

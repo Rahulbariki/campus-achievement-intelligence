@@ -49,65 +49,36 @@ export default function AppShell({ title, subtitle, children }) {
         id="workspace-sidebar"
         className={`workspace-sidebar ${sidebarOpen ? 'is-open' : ''}`}
       >
-        <div className="edition-strip">
-          <span>Vol. 1</span>
-          <span>{editionDate}</span>
-          <span>{meta.label} Edition</span>
-        </div>
-
         <div className="brand-lockup">
-          <p className="eyebrow">CAIP Gazette</p>
-          <h1>Campus Achievement Intelligence Platform</h1>
-          <p className="sidebar-copy">{meta.strapline}</p>
+          <h1>CAIP</h1>
+          <p className="eyebrow">Intelligence Portal</p>
         </div>
 
-        <div className="user-card">
-          <p className="eyebrow">Desk Credentials</p>
-          <strong>{user?.name ?? 'Analyst'}</strong>
-          <span>{meta.label}</span>
-          <span>{user?.department ?? 'Campus-wide edition'}</span>
+        <div className="user-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '4px' }}>
+          <strong>{user?.name ?? 'User'}</strong>
+          <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{meta.label}</span>
+          <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{user?.department}</span>
         </div>
 
-        <nav className="sidebar-nav" aria-label="Dashboard sections">
-          <Link to={getDashboardPath(role)} onClick={closeSidebar}>
-            Main Desk
-          </Link>
-          <Link to="/" onClick={closeSidebar}>
-            Front Page
-          </Link>
-          {navItems.map((item) => (
-            <a key={item.href} href={item.href} onClick={closeSidebar}>
-              {item.label}
-            </a>
-          ))}
+        <nav className="sidebar-nav">
+          <Link to={getDashboardPath(role)} onClick={closeSidebar}>Dashboard</Link>
+          <Link to="/" onClick={closeSidebar}>Home</Link>
+          <button className="ghost-button" onClick={logout} style={{ marginTop: 'auto', color: 'white', borderColor: 'rgba(255,255,255,0.2)' }}>
+            Sign Out
+          </button>
         </nav>
-
-        <div className="sidebar-footnote">
-          <p className="eyebrow">Coverage Notes</p>
-          <p>
-            Structured submission tracking, editorial analytics, and AI-assisted campus
-            recognition in one working edition.
-          </p>
-        </div>
-
-        <button className="ghost-button" type="button" onClick={logout}>
-          Sign Out
-        </button>
       </aside>
 
       <main className="workspace-main">
-        <header className="workspace-header newsprint-texture">
+        <header className="workspace-header">
           <div className="workspace-header__copy">
-            <p className="eyebrow">Role Workspace</p>
             <h2>{title}</h2>
             <p className="header-copy">{subtitle}</p>
           </div>
 
           <div className="workspace-header__actions">
             <div className="status-pill">
-              <span className="status-pill__label">Desk Status</span>
-              <strong>LIVE EDITION</strong>
-              <span>FastAPI / MongoDB / AI</span>
+              <strong>Live System</strong>
             </div>
           </div>
         </header>

@@ -56,72 +56,72 @@ export default function SuperAdminDashboard() {
   };
 
   return (
-    <div className="card-section newsprint-texture" style={{ marginTop: '2rem' }}>
+    <div className="panel" style={{ marginTop: '2rem' }}>
       <div className="section-header">
-        <div className="metadata" style={{ color: 'var(--accent)' }}>LEVEL 5 ACCESS | DATABASE CONTROLLER</div>
-        <h3 style={{ fontSize: '2rem' }}>SUPER ADMIN COMMAND CONSOLE</h3>
-        <p className="font-serif italic">Global override authority for document rectification, audit trail management, and systemic data hygiene.</p>
+        <p className="eyebrow">System Administration</p>
+        <h3>Database Management</h3>
+        <p className="font-serif">Global tools for managing system collections, document rectification, and data maintenance.</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '2rem', marginTop: '2rem' }}>
         <aside style={{ borderRight: '1px solid var(--line)', paddingRight: '2rem' }}>
-          <div className="metadata" style={{ marginBottom: '1rem' }}>SYSTEM COLLECTIONS</div>
-          <div className="sidebar-nav">
+          <p className="eyebrow" style={{ marginBottom: '1rem' }}>Collections</p>
+          <nav className="sidebar-nav">
             {collections.map(c => (
-              <a key={c} 
-                 href="#"
-                 onClick={(e) => { e.preventDefault(); setSelectedCollection(c); fetchCollectionData(c); }}
+              <button key={c} 
+                 onClick={() => { setSelectedCollection(c); fetchCollectionData(c); }}
+                 className={`workspace-menu-button ${selectedCollection === c ? 'active' : ''}`}
                  style={{ 
                    display: 'block',
-                   background: selectedCollection === c ? 'var(--ink)' : 'transparent', 
-                   color: selectedCollection === c ? 'white' : 'inherit',
+                   width: '100%',
+                   textAlign: 'left',
                    marginBottom: '0.5rem',
-                   fontWeight: 900,
-                   fontSize: '0.75rem'
+                   fontSize: '0.8rem',
+                   textTransform: 'capitalize'
                  }}>
-                {c.toUpperCase()}
-              </a>
+                {c.replace('_', ' ')}
+              </button>
             ))}
-          </div>
+          </nav>
         </aside>
 
         <main>
           <div className="metadata" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-            <span>{selectedCollection ? `ACTIVE LEDGER: ${selectedCollection.toUpperCase()}` : 'SELECT COLLECTION TO INSPECT'}</span>
-            <span>{data.length} RECORDS CACHED</span>
+            <span>{selectedCollection ? `Collection: ${selectedCollection}` : 'Select a collection'}</span>
+            <span>{data.length} records found</span>
           </div>
 
           {loading ? (
              <div style={{ padding: '4rem', textAlign: 'center' }}>
-               <p className="font-mono italic">Synchronizing with core cluster...</p>
+               <p className="font-serif italic">Loading data...</p>
              </div>
           ) : (
             <div className="table-container" style={{ maxHeight: '500px' }}>
               <table>
                 <thead>
                   <tr>
-                    <th>OBJECT_ID</th>
-                    <th>DATA_PAYLOAD_MAP</th>
-                    <th>OPERATIONS</th>
+                    <th>ID</th>
+                    <th>Data Summary</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.map(doc => (
                     <tr key={doc._id}>
-                      <td className="font-mono" style={{ fontSize: '0.65rem', fontWeight: 900 }}>{doc._id}</td>
-                      <td className="font-mono" style={{ fontSize: '0.65rem', maxWidth: '350px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <td className="font-mono" style={{ fontSize: '0.7rem' }}>{doc._id}</td>
+                      <td className="font-mono" style={{ fontSize: '0.7rem', maxWidth: '350px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {JSON.stringify(doc)}
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="small-btn" onClick={() => setEditingDoc(doc)}>MODIFY</button>
-                          <button className="small-btn btn-danger" onClick={() => handleDelete(doc._id)}>PURGE</button>
+                          <button className="small-btn" onClick={() => setEditingDoc(doc)}>Edit</button>
+                          <button className="small-btn btn-danger" onClick={() => handleDelete(doc._id)}>Delete</button>
                         </div>
                       </td>
                     </tr>
                   ))}
                   {data.length === 0 && (
-                    <tr><td colSpan="3" style={{ textAlign: 'center', padding: '3rem', fontStyle: 'italic' }}>No data streams found for this collection.</td></tr>
+                    <tr><td colSpan="3" style={{ textAlign: 'center', padding: '3rem', fontStyle: 'italic' }}>No records found in this collection.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -132,8 +132,8 @@ export default function SuperAdminDashboard() {
 
       {editingDoc && (
         <div className="modal-overlay">
-          <div className="modal-content newsprint-texture">
-            <div className="metadata" style={{ color: 'var(--accent)' }}>DOCUMENT EDITOR</div>
+          <div className="modal-content panel">
+            <p className="eyebrow">Document Editor</p>
             <h4 className="font-mono" style={{ fontSize: '1.2rem', margin: '0.5rem 0' }}>{editingDoc._id}</h4>
             <form onSubmit={handleUpdate}>
               <textarea 
@@ -144,16 +144,16 @@ export default function SuperAdminDashboard() {
                   width: '100%', 
                   height: '350px', 
                   marginTop: '1.5rem', 
-                  border: '2px solid var(--ink)', 
+                  border: '1px solid var(--line)', 
                   padding: '1.5rem',
-                  fontSize: '0.8rem',
+                  fontSize: '0.85rem',
                   lineHeight: '1.6',
-                  background: '#fdfdfd'
+                  background: 'var(--paper-strong)'
                 }}
               />
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2rem' }}>
-                <button className="primary-button" type="submit" style={{ flex: 1 }}>SAVE & COMMIT TO DB</button>
-                <button className="ghost-button" type="button" onClick={() => setEditingDoc(null)} style={{ flex: 1 }}>ABORT CHANGES</button>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                <button className="primary-button" type="submit" style={{ flex: 1 }}>Save Changes</button>
+                <button className="ghost-button" type="button" onClick={() => setEditingDoc(null)} style={{ flex: 1 }}>Cancel</button>
               </div>
             </form>
           </div>

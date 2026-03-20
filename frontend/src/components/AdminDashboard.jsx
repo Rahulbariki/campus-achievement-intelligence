@@ -72,54 +72,54 @@ function AdminDashboard({ token }) {
   return (
     <div className="dashboard-content">
       <div className="section-header">
-        <div className="metadata">ADMINISTRATIVE OVERRIDE | SYSTEM v1.0.42</div>
-        <h2>EDITORIAL OPERATIONS CONTROL</h2>
-        <p className="font-serif italic">Managing institutional recognition pipelines, intellectual property verification, and automated press correspondence.</p>
+        <p className="eyebrow">Administrative Portal</p>
+        <h2>Verification & Operations</h2>
+        <p className="font-serif">Oversee student submissions, verify credentials with AI assistance, and generate official press materials.</p>
       </div>
 
       <div className="grid-container">
-        <section className="card-section newsprint-texture">
-          <div className="metadata" style={{ marginBottom: '0.5rem' }}>CORRESPONDENCE ENGINE</div>
-          <h3>GENERATE OFFICIAL PRESS NOTE</h3>
+        <section className="panel">
+          <p className="eyebrow">AI Tools</p>
+          <h3>Draft Press Release</h3>
           <div className="form-group-stack">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div className="form-group">
-                <label>STUDENT EMAIL IDENTIFIER</label>
+                <label>Student Email</label>
                 <input 
-                  placeholder="e.g., student@campus.edu" 
+                  placeholder="student@campus.edu" 
                   value={pressNoteConfig.studentEmail} 
                   onChange={(e) => setPressNoteConfig({...pressNoteConfig, studentEmail: e.target.value})} 
                 />
               </div>
               <div className="form-group">
-                <label>EVENT NOMENCLATURE</label>
+                <label>Event Name</label>
                 <input 
-                  placeholder="e.g., NATIONAL SYMPOSIUM" 
+                  placeholder="e.g., Smart India Hackathon" 
                   value={pressNoteConfig.eventName} 
                   onChange={(e) => setPressNoteConfig({...pressNoteConfig, eventName: e.target.value})} 
                 />
               </div>
             </div>
-            <button className="primary-btn h-12" onClick={generatePressNote} disabled={loading || !pressNoteConfig.studentEmail}>
-              {loading ? 'DRAFTING CORRESPONDENCE...' : 'GENERATE OFFICIAL PRESS NOTE'}
+            <button className="primary-button" onClick={generatePressNote} disabled={loading || !pressNoteConfig.studentEmail}>
+              {loading ? 'Generating...' : 'Create Press Note'}
             </button>
           </div>
 
           {pressNoteResult && (
-            <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '3rem', borderTop: '4px solid var(--ink-black)', paddingTop: '2.5rem' }}>
+            <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem', borderTop: '1px solid var(--line)', paddingTop: '2.5rem' }}>
               <div>
-                <div className="metadata" style={{ color: 'var(--editorial-red)', marginBottom: '1rem' }}>OFFICIAL PRESS RELEASE</div>
-                <div className="status-msg" style={{ background: 'white', padding: '2.5rem', border: '1px solid var(--ink-black)' }}>
-                  <h4 className="font-serif" style={{ fontSize: '1.75rem', marginBottom: '1.5rem', borderBottom: '1px solid #eee' }}>"{pressNoteConfig.eventName.toUpperCase()}"</h4>
-                  <p className="font-serif italic" style={{ fontSize: '1.1rem', whiteSpace: 'pre-wrap', lineHeight: '1.8' }}>
+                <p className="eyebrow">Official Draft</p>
+                <div className="panel" style={{ background: 'var(--paper-strong)', padding: '2rem' }}>
+                  <h4 style={{ marginBottom: '1rem' }}>{pressNoteConfig.eventName}</h4>
+                  <p className="font-serif" style={{ whiteSpace: 'pre-wrap' }}>
                     {pressNoteResult.press_note}
                   </p>
                 </div>
               </div>
               <div>
-                <div className="metadata" style={{ marginBottom: '1rem' }}>SOCIAL MEDIA DISPATCH</div>
-                <div className="status-msg" style={{ background: '#f5f5f5', border: '1px dashed var(--ink-black)' }}>
-                  <p className="font-mono" style={{ fontSize: '0.85rem', whiteSpace: 'pre-wrap' }}>
+                <p className="eyebrow">Social Media</p>
+                <div className="panel" style={{ background: 'var(--surface-muted)' }}>
+                  <p className="font-mono" style={{ fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
                     {pressNoteResult.social_media_post}
                   </p>
                 </div>
@@ -128,60 +128,55 @@ function AdminDashboard({ token }) {
           )}
         </section>
 
-        <section className="table-full-section">
-          <div className="metadata" style={{ marginBottom: '0.5rem' }}>VERIFICATION PIPELINE</div>
-          <h3>CERTIFICATION LEDGER REVIEW</h3>
+        <section className="panel" style={{ gridColumn: 'span 2' }}>
+          <p className="eyebrow">Verification Queue</p>
+          <h3>Certificate Review Ledger</h3>
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>STUDENT IDENTIFIER</th>
-                  <th>EVENT CLASSIFICATION</th>
-                  <th>ACHIEVEMENT</th>
-                  <th>EDITORIAL STATUS</th>
-                  <th>NEURAL CONFIDENCE</th>
-                  <th>ACTIONS</th>
+                  <th>Student</th>
+                  <th>Event</th>
+                  <th>Level</th>
+                  <th>Status</th>
+                  <th>AI Confidence</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {certificates.map((cert) => (
                   <tr key={cert.file_name}>
                     <td className="font-mono">{cert.student_email}</td>
-                    <td className="font-serif" style={{ fontWeight: 700 }}>{cert.event_name.toUpperCase()}</td>
+                    <td>{cert.event_name}</td>
                     <td><span className={`badge ${cert.achievement}`}>{cert.achievement}</span></td>
                     <td>
-                      <span className="metadata" style={{ 
-                        color: cert.verified ? '#15803D' : cert.rejection_reason ? 'var(--editorial-red)' : '#737373',
-                        fontWeight: 900
+                      <span style={{ 
+                        color: cert.verified ? 'var(--success)' : cert.rejection_reason ? 'var(--accent)' : 'var(--muted)',
+                        fontWeight: 600
                       }}>
-                        {cert.verified ? '✓ VERIFIED' : cert.rejection_reason ? '× REJECTED' : '○ PENDING'}
+                        {cert.verified ? 'Verified' : cert.rejection_reason ? 'Rejected' : 'Pending'}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td>
                       {cert.ocr_confidence ? (
-                        <div className="font-mono" style={{ fontWeight: 900, color: cert.auto_verified ? '#15803D' : 'var(--ink-black)' }}>
-                          {Math.round(cert.ocr_confidence * 100)}% {cert.auto_verified ? '✓' : '?'}
+                        <div style={{ fontWeight: 600 }}>
+                          {Math.round(cert.ocr_confidence * 100)}% {cert.auto_verified ? '✓' : ''}
                         </div>
                       ) : (
-                        <button className="small-btn" onClick={() => runOCR(cert)} disabled={loading} style={{ padding: '0.5rem', fontSize: '0.65rem' }}>RUN AI ANALYSIS</button>
+                        <button className="small-btn" onClick={() => runOCR(cert)} disabled={loading}>Run AI</button>
                       )}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
-                           target="_blank" rel="noreferrer" className="view-link" style={{ textAlign: 'center' }}>
-                          Examine Cert
+                           target="_blank" rel="noreferrer" className="ghost-button">
+                          Review
                         </a>
-                        {cert.event_photo_url && (
-                          <a href={cert.event_photo_url} target="_blank" rel="noreferrer" className="view-link" style={{ color: 'var(--editorial-red)', textAlign: 'center' }}>
-                            Dignitary Photo
-                          </a>
-                        )}
                         {!cert.verified && (
-                          <div style={{ display: 'flex', gap: '0.25rem' }}>
-                            <button className="small-btn btn-success" style={{ flex: 1 }} onClick={() => verify(cert.file_name)}>PASS</button>
-                            <button className="small-btn btn-danger" style={{ flex: 1 }} onClick={() => reject(cert.file_name)}>FAIL</button>
-                          </div>
+                          <>
+                            <button className="small-btn" onClick={() => verify(cert.file_name)}>Approve</button>
+                            <button className="small-btn btn-danger" onClick={() => reject(cert.file_name)}>Reject</button>
+                          </>
                         )}
                       </div>
                     </td>

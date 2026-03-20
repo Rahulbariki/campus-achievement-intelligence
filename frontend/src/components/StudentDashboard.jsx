@@ -85,43 +85,43 @@ function StudentDashboard({ token }) {
   return (
     <div className="dashboard-content">
       <div className="section-header">
-        <div className="metadata">STUDENT REPORT | VOL. 2026.03</div>
-        <h2>THE STUDENT PORTAL</h2>
-        <p className="font-serif drop-cap">Comprehensive record of achievements, verified credentials, and academic portfolio growth in a newsprint-inspired intelligence landscape.</p>
+        <p className="eyebrow">Student Performance Record</p>
+        <h2>My Dashboard</h2>
+        <p className="font-serif">Track your achievements, verify credentials, and build your professional academic portfolio.</p>
       </div>
 
       <div className="grid-container">
         {activityRank && (
           <section className="stats-row">
-            <div className="stat-card hard-shadow-hover">
-              <h4>CREDIT POINTS</h4>
-              <p className="large-val" style={{ color: 'var(--editorial-red)' }}>{activityRank.total_points}</p>
-              <div className="metadata" style={{ marginTop: '0.5rem', fontSize: '0.6rem' }}>Accumulated Score</div>
+            <div className="metric-card">
+              <p className="eyebrow">Credit Points</p>
+              <strong>{activityRank.total_points}</strong>
+              <p className="font-sans small">Accumulated score from all verified events.</p>
             </div>
-            <div className="stat-card hard-shadow-hover">
-              <h4>ENGAGEMENT INDEX</h4>
-              <p className="large-val">{activityRank.participations}</p>
-              <div className="metadata" style={{ marginTop: '0.5rem', fontSize: '0.6rem' }}>Total Event Participation</div>
+            <div className="metric-card">
+              <p className="eyebrow">Participations</p>
+              <strong>{activityRank.participations}</strong>
+              <p className="font-sans small">Total events attended and recorded.</p>
             </div>
-            <div className="stat-card hard-shadow-hover">
-              <h4>MERIT RECOGNITIONS</h4>
-              <p className="large-val">{activityRank.wins}</p>
-              <div className="metadata" style={{ marginTop: '0.5rem', fontSize: '0.6rem' }}>Verified Victory Instances</div>
+            <div className="metric-card">
+              <p className="eyebrow">Certifications</p>
+              <strong>{activityRank.wins}</strong>
+              <p className="font-sans small">Verified merit recognitions.</p>
             </div>
           </section>
         )}
 
         <div className="two-col-grid">
-          <section className="card-section">
-            <div className="metadata" style={{ marginBottom: '0.5rem' }}>ENTRY FORM</div>
-            <h3>REGISTER ACHIEVEMENT</h3>
+          <section className="panel">
+            <p className="eyebrow">Capture Achievement</p>
+            <h3>New Submission</h3>
             <form onSubmit={handleUpload} className="form-group-stack">
               <div className="form-group">
-                <label>NOMENCLATURE OF EVENT</label>
-                <input placeholder="e.g., NATIONAL SMART INDIA HACKATHON" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
+                <label>Event Name</label>
+                <input placeholder="e.g., Smart India Hackathon" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label>LEVEL OF ATTAINMENT</label>
+                <label>Level</label>
                 <select value={achievement} onChange={(e) => setAchievement(e.target.value)}>
                   <option value="participant">Participant</option>
                   <option value="finalist">Finalist</option>
@@ -130,86 +130,80 @@ function StudentDashboard({ token }) {
                 </select>
               </div>
               <div className="form-group">
-                <label>VERIFIABLE PROOF (CERTIFICATE PDF/IMAGE)</label>
-                <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="application/pdf,image/*" required 
-                       style={{ border: '1px dashed var(--ink-black)', padding: '1rem', background: '#fafafa' }} />
+                <label>Certificate Proof (PDF/Image)</label>
+                <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="application/pdf,image/*" required />
               </div>
               <div className="form-group">
-                <label>EVENT PHOTO WITH DIGNITARIES (OPTIONAL IMAGE)</label>
-                <input type="file" onChange={(e) => setEventPhoto(e.target.files[0])} accept="image/*" 
-                       style={{ border: '1px dashed var(--editorial-red)', padding: '1rem', background: '#fafafa' }} />
-                <small className="metadata" style={{ marginTop: '0.25rem' }}>Upload photo with guest/principal for added merit</small>
+                <label>Event Photo (Optional)</label>
+                <input type="file" onChange={(e) => setEventPhoto(e.target.files[0])} accept="image/*" />
               </div>
-              <button className="primary-btn h-12" type="submit" disabled={loading} style={{ width: '100%' }}>
-                {loading ? 'PROCESSING...' : 'SUBMIT FOR VERIFICATION'}
+              <button className="primary-button" type="submit" disabled={loading} style={{ width: '100%' }}>
+                {loading ? 'Processing...' : 'Submit Entry'}
               </button>
             </form>
             {message && <p className="status-msg">{message}</p>}
           </section>
 
-          <section className="card-section">
-            <div className="metadata" style={{ marginBottom: '0.5rem' }}>BULLETIN BOARD</div>
-            <h3>LATEST DISPATCHES</h3>
+          <section className="panel">
+            <p className="eyebrow">Communication</p>
+            <h3>Recent Notifications</h3>
             <div className="notification-list">
-              {notifications.length === 0 ? <p className="font-serif italic" style={{ padding: '1rem 0' }}>No correspondence at this time.</p> : 
+              {notifications.length === 0 ? (
+                <p className="font-serif italic">No new messages.</p>
+              ) : (
                 notifications.slice(0, 5).map((note) => (
-                <div key={note.notification_id} className="note-item">
-                  <p className="font-serif">{note.message}</p>
-                  <small className="font-mono">{new Date(note.created_at).toLocaleDateString()}</small>
-                </div>
-              ))}
+                  <div key={note.notification_id} className="note-item">
+                    <p>{note.message}</p>
+                    <small className="font-mono">{new Date(note.created_at).toLocaleDateString()}</small>
+                  </div>
+                ))
+              )}
             </div>
           </section>
         </div>
 
-        <section className="table-full-section newsprint-texture">
-          <div className="metadata" style={{ marginBottom: '0.5rem' }}>LEDGER RECORD</div>
+        <section className="panel" style={{ marginTop: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3>VERIFIED ACADEMIC PORTFOLIO</h3>
-            <button className="primary-btn" onClick={exportPortfolio} disabled={exportLoading || myCertificates.length === 0} style={{ padding: '0.6rem 2rem' }}>
-              {exportLoading ? 'COMPILING TRANSCRIPT...' : 'DOWNLOAD PERFORMANCE TRANSCRIPT (PDF)'}
+            <h3>Verified Academic Portfolio</h3>
+            <button className="primary-button" onClick={exportPortfolio} disabled={exportLoading || myCertificates.length === 0}>
+              {exportLoading ? 'Processing...' : 'Download PDF Portfolio'}
             </button>
           </div>
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>EVENT CLASSIFICATION</th>
-                  <th>ACHIEVEMENT</th>
-                  <th>STATUS</th>
-                  <th>EDITORIAL FEEDBACK</th>
-                  <th>ACTION</th>
+                  <th>Event</th>
+                  <th>Award</th>
+                  <th>Status</th>
+                  <th>Feedback</th>
+                  <th>Resource</th>
                 </tr>
               </thead>
               <tbody>
                 {myCertificates.length === 0 ? (
-                  <tr><td colSpan="5" style={{ textAlign: 'center' }}>No verified records found in the archive.</td></tr>
+                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>No records found.</td></tr>
                 ) : (
                   myCertificates.map((cert) => (
                     <tr key={cert.file_name}>
-                      <td><strong style={{ fontFamily: 'Playfair Display' }}>{cert.event_name.toUpperCase()}</strong></td>
+                      <td>{cert.event_name}</td>
                       <td><span className={`badge ${cert.achievement}`}>{cert.achievement}</span></td>
                       <td>
-                        <span className="metadata" style={{ 
-                          color: cert.verified ? '#15803D' : cert.rejection_reason ? 'var(--editorial-red)' : '#737373' 
+                        <span style={{ 
+                          color: cert.verified ? 'var(--success)' : cert.rejection_reason ? 'var(--accent)' : 'var(--muted)' 
                         }}>
-                          {cert.verified ? '✓ VERIFIED' : cert.rejection_reason ? '× REJECTED' : '○ PENDING'}
+                          {cert.verified ? 'Verified' : cert.rejection_reason ? 'Rejected' : 'Pending'}
                         </span>
                       </td>
-                      <td className="font-serif" style={{ fontSize: '0.9rem', color: '#525252' }}>
-                        {cert.verification_comment || cert.rejection_reason || 'Examination in progress...'}
+                      <td>
+                        {cert.verification_comment || cert.rejection_reason || 'Under review...'}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
-                             target="_blank" rel="noreferrer" className="view-link" style={{ textAlign: 'center' }}>
-                            Cert Proof
+                             target="_blank" rel="noreferrer" className="ghost-button">
+                            View
                           </a>
-                          {cert.event_photo_url && (
-                             <a href={cert.event_photo_url} target="_blank" rel="noreferrer" className="view-link" style={{ color: 'var(--editorial-red)', textAlign: 'center' }}>
-                               Dignitary Photo
-                             </a>
-                          )}
                         </div>
                       </td>
                     </tr>
