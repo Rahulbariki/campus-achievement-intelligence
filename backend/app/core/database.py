@@ -1,3 +1,4 @@
+import certifi
 from pymongo import ASCENDING, DESCENDING, MongoClient
 
 from backend.app.core.config import settings
@@ -10,7 +11,13 @@ class MongoManager:
     @property
     def client(self) -> MongoClient:
         if self._client is None:
-            self._client = MongoClient(settings.mongodb_uri)
+            self._client = MongoClient(
+                settings.mongodb_uri,
+                serverSelectionTimeoutMS=5000,
+                connectTimeoutMS=5000,
+                socketTimeoutMS=5000,
+                tlsCAFile=certifi.where(),
+            )
         return self._client
 
     @property

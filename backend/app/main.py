@@ -29,7 +29,10 @@ app.include_router(api_router, prefix=settings.api_prefix)
 
 @app.on_event("startup")
 def on_startup() -> None:
-    mongo_manager.ensure_indexes()
+    try:
+        mongo_manager.ensure_indexes()
+    except Exception as exc:  # pragma: no cover - deployment resilience guard
+        print(f"Mongo index initialization skipped: {exc}")
 
 
 @app.get("/", tags=["System"])

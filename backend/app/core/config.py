@@ -16,7 +16,10 @@ class Settings:
     app_name: str = os.getenv("APP_NAME", "Campus Achievement Intelligence Platform")
     api_prefix: str = os.getenv("API_PREFIX", "/api")
     mongodb_uri: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-    mongodb_db_name: str = os.getenv("MONGODB_DB_NAME", "caip")
+    mongodb_db_name: str = os.getenv(
+        "MONGODB_DB_NAME",
+        os.getenv("DB_NAME", "caip"),
+    )
     jwt_secret: str = os.getenv("JWT_SECRET", "change-me-in-production")
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
     access_token_expire_minutes: int = int(
