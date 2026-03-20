@@ -136,10 +136,12 @@ class OCRExtraction(BaseModel):
 
 
 class CertificateDocument(MongoDocument):
-    student_user_id: str = Field(..., min_length=6)
+    student_user_id: str | None = Field(default=None, min_length=6)
     student_email: EmailStr
-    student_name: str = Field(..., min_length=2, max_length=120)
+    student_name: str | None = Field(default=None, min_length=2, max_length=120)
     department: str | None = Field(default=None, max_length=120)
+    event_name: str = Field(..., min_length=3, max_length=160)
+    achievement: Achievement
     participation_id: str | None = Field(default=None, min_length=6)
     event_id: str | None = Field(default=None, min_length=6)
     file_url: str = Field(..., min_length=10)
@@ -148,7 +150,9 @@ class CertificateDocument(MongoDocument):
     content_type: str | None = Field(default=None, max_length=120)
     verified: bool = False
     verification_status: CertificateVerificationStatus = "pending"
+    uploaded_by_email: EmailStr | None = None
     verified_by_user_id: str | None = Field(default=None, min_length=6)
+    verified_by_email: EmailStr | None = None
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
     verified_at: datetime | None = None
     ocr: OCRExtraction = Field(default_factory=OCRExtraction)
@@ -167,13 +171,16 @@ class ScoreDocument(MongoDocument):
 
 
 class PressNoteDocument(MongoDocument):
-    student_user_id: str = Field(..., min_length=6)
-    student_email: EmailStr
+    student_user_id: str | None = Field(default=None, min_length=6)
+    student_email: EmailStr | None = None
+    student_name: str = Field(..., min_length=2, max_length=120)
     department: str | None = Field(default=None, max_length=120)
+    event_name: str = Field(..., min_length=3, max_length=160)
     event_id: str | None = Field(default=None, min_length=6)
     participation_id: str | None = Field(default=None, min_length=6)
     certificate_id: str | None = Field(default=None, min_length=6)
     generated_by_user_id: str = Field(..., min_length=6)
+    generated_by_email: EmailStr | None = None
     achievement: Achievement
     title: str = Field(..., min_length=6, max_length=200)
     body: str = Field(..., min_length=20)
@@ -339,14 +346,13 @@ COLLECTION_SCHEMAS = {
         collection="certificates",
         model_name="CertificateDocument",
         required_fields=[
-            "student_user_id",
             "student_email",
-            "student_name",
+            "event_name",
+            "achievement",
             "file_url",
             "verified",
             "verification_status",
             "uploaded_at",
-            "ocr",
             "created_at",
         ],
         relationships=[
@@ -355,8 +361,8 @@ COLLECTION_SCHEMAS = {
                 target_collection="users",
                 target_field="_id",
                 cardinality="many-to-one",
-                required=True,
-                description="Each certificate belongs to one user.",
+                required=False,
+                description="A certificate can optionally resolve to a registered student user.",
             ),
             RelationshipDefinition(
                 field="participation_id",
@@ -412,8 +418,8 @@ COLLECTION_SCHEMAS = {
         collection="press_notes",
         model_name="PressNoteDocument",
         required_fields=[
-            "student_user_id",
-            "student_email",
+            "student_name",
+            "event_name",
             "generated_by_user_id",
             "achievement",
             "title",
@@ -427,8 +433,8 @@ COLLECTION_SCHEMAS = {
                 target_collection="users",
                 target_field="_id",
                 cardinality="many-to-one",
-                required=True,
-                description="Each press note highlights one student.",
+                required=False,
+                description="A press note can optionally resolve to a registered student.",
             ),
             RelationshipDefinition(
                 field="generated_by_user_id",

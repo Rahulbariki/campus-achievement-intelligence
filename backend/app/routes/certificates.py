@@ -1,7 +1,9 @@
+from pydantic import EmailStr
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 
 from backend.app.api.deps import get_current_user, require_roles
 from backend.app.schemas.certificate import CertificateDeleteResponse, CertificateResponse
+from backend.app.schemas.common import Achievement
 from backend.app.services.certificate_service import CertificateService
 
 router = APIRouter(tags=["Certificates"])
@@ -9,9 +11,9 @@ router = APIRouter(tags=["Certificates"])
 
 @router.post("/upload-certificate", response_model=CertificateResponse, status_code=status.HTTP_201_CREATED)
 async def upload_certificate(
-    student_email: str = Form(...),
-    event_name: str = Form(...),
-    achievement: str = Form(...),
+    student_email: EmailStr = Form(...),
+    event_name: str = Form(..., min_length=3, max_length=160),
+    achievement: Achievement = Form(...),
     file: UploadFile = File(...),
     current_user: dict = Depends(
         require_roles("student", "faculty", "admin", "hod", "super_admin")

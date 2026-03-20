@@ -6,6 +6,7 @@ from fastapi import HTTPException, UploadFile, status
 
 from backend.app.core.cloudinary_client import storage
 from backend.app.core.database import mongo_manager
+from backend.app.services.score_service import ScoreService
 from backend.app.utils.serializers import serialize_document
 
 ALLOWED_CONTENT_TYPES = {
@@ -34,6 +35,12 @@ class CertificateService:
         normalized_achievement = achievement.strip().lower()
         file_bytes = await upload.read()
 
+        if not normalized_event_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Event name is required.",
+            )
+
         if not file_bytes:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -42,10 +49,22 @@ class CertificateService:
 
         CertificateService._validate_student_email_access(normalized_email, current_user)
 
+        student_user = mongo_manager.users.find_one(
+            {"email": normalized_email, "role": "student"}
+        )
+        if student_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Student account could not be found for the provided email.",
+            )
+
         upload_result = storage.upload_certificate(file_bytes, upload.filename or "certificate")
         timestamp = datetime.utcnow()
         document = {
+            "student_user_id": str(student_user["_id"]),
             "student_email": normalized_email,
+            "student_name": student_user.get("name"),
+            "department": student_user.get("department"),
             "event_name": normalized_event_name,
             "achievement": normalized_achievement,
             "file_url": upload_result["url"],
@@ -69,6 +88,8 @@ class CertificateService:
         role = current_user.get("role")
         if role == "student":
             query["student_email"] = current_user["email"]
+        elif role in {"faculty", "hod"} and current_user.get("department"):
+            query["department"] = current_user["department"]
 
         results = mongo_manager.certificates.find(query).sort("uploaded_at", -1)
         return [serialize_document(item) for item in results]
@@ -83,19 +104,26 @@ class CertificateService:
                 detail="Certificate could not be found.",
             )
 
+        if certificate.get("verification_status") == "verified":
+            ScoreService.sync_student_score(certificate["student_email"])
+            return serialize_document(certificate)
+
+        verified_at = datetime.utcnow()
         mongo_manager.certificates.update_one(
             {"_id": certificate_oid},
             {
                 "$set": {
                     "verified": True,
                     "verification_status": "verified",
-                    "verified_at": datetime.utcnow(),
+                    "verified_at": verified_at,
+                    "verified_by_user_id": current_user.get("id"),
                     "verified_by_email": current_user["email"],
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": verified_at,
                 }
             },
         )
         updated = mongo_manager.certificates.find_one({"_id": certificate_oid})
+        ScoreService.sync_student_score(updated["student_email"])
         return serialize_document(updated)
 
     @staticmethod
@@ -116,7 +144,14 @@ class CertificateService:
                 detail="Only the owner or an administrator can delete this certificate.",
             )
 
+        was_verified = certificate.get("verification_status") == "verified" or certificate.get(
+            "verified"
+        )
+
         mongo_manager.certificates.delete_one({"_id": certificate_oid})
+        if was_verified:
+            ScoreService.sync_student_score(certificate["student_email"])
+
         deleted = serialize_document(certificate)
         deleted["message"] = "Certificate deleted successfully."
         return deleted

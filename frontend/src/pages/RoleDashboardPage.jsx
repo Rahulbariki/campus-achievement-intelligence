@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AppShell from '../components/AppShell';
 import MetricGrid from '../components/MetricGrid';
 import Panel from '../components/Panel';
+import SuperAdminDashboard from '../components/SuperAdminDashboard';
 import {
   activityRoles,
   certificateUploadRoles,
@@ -626,6 +627,8 @@ export default function RoleDashboardPage() {
           ) : null}
         </Panel>
       </div>
+
+      {role === 'super_admin' && <SuperAdminDashboard />}
     </AppShell>
   );
 }

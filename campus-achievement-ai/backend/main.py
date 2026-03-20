@@ -20,6 +20,7 @@ from routes.auth_router import auth_router
 from routes.activity_router import activity_router
 from routes.admin_router import admin_router
 from routes.event_router import event_router
+from routes.super_admin_router import super_admin_router
 
 app = FastAPI(title='Campus Achievement AI Platform')
 
@@ -37,6 +38,7 @@ app.include_router(auth_router, prefix='/api/auth')
 app.include_router(activity_router, prefix='/api/activity')
 app.include_router(admin_router, prefix='/api/admin')
 app.include_router(event_router, prefix='/api')
+app.include_router(super_admin_router, prefix='/api/super-admin')
 
 # Static file serving for certificates
 # Use /tmp for certificates in Vercel to allow temp file operations

@@ -440,3 +440,83 @@ textarea {
     flex-direction: column;
   }
 }
+
+/* Super Admin & Database Controller Utilities */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 2rem;
+}
+
+.modal-content {
+  background: var(--panel);
+  border: 4px solid var(--ink);
+  padding: 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 12px 12px 0 var(--ink);
+}
+
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  background: #fafafa;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.small-btn {
+  padding: 0.5rem 0.8rem;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.small-btn:hover {
+  background: var(--ink);
+  color: white;
+}
+
+.btn-danger {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-danger:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}

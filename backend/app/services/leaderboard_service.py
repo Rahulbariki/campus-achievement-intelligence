@@ -1,80 +1,70 @@
-from collections import defaultdict
-
 from ai_engine.scoring import determine_activity_level
 from backend.app.core.database import mongo_manager
+from backend.app.services.score_service import ScoreService
+from backend.app.utils.serializers import serialize_document
 
 
 class LeaderboardService:
     @staticmethod
     def build_leaderboard(limit: int, current_user: dict) -> list[dict]:
-        students = defaultdict(
-            lambda: {
-                "student_email": "",
-                "student_name": "",
-                "department": None,
-                "total_points": 0,
-                "participations": 0,
-                "wins": 0,
-                "activity_level": "Inactive",
-                "last_submission": None,
-            }
-        )
-
         query: dict = {}
-        if current_user.get("role") in {"faculty", "hod"} and current_user.get("department"):
+        role = current_user.get("role")
+        if role in {"faculty", "hod"} and current_user.get("department"):
             query["department"] = current_user["department"]
-        elif current_user.get("role") == "student":
+        elif role == "student":
             query["student_email"] = current_user["email"]
 
-        for document in mongo_manager.participations.find(query):
-            email = document["student_email"]
-            entry = students[email]
-            entry["student_email"] = email
-            entry["student_name"] = document.get("student_name", "Unknown")
-            entry["department"] = document.get("department")
-            entry["total_points"] += int(document.get("points", 0))
-            entry["participations"] += 1
-            entry["wins"] += 1 if document.get("achievement") == "winner" else 0
-            entry["activity_level"] = determine_activity_level(entry["participations"])
-            entry["last_submission"] = document.get("created_at")
-
-        leaderboard = sorted(
-            students.values(),
-            key=lambda item: (
-                item["total_points"],
-                item["wins"],
-                item["participations"],
-            ),
-            reverse=True,
-        )[:limit]
-
-        for entry in leaderboard:
-            mongo_manager.scores.update_one(
-                {"student_email": entry["student_email"]},
-                {"$set": entry},
-                upsert=True,
-            )
-
-        return leaderboard
+        cursor = (
+            mongo_manager.scores.find(query)
+            .sort(ScoreService.SORT_ORDER)
+            .limit(limit)
+        )
+        return [
+            {
+                "student_email": entry.get("student_email"),
+                "student_name": entry.get("student_name", "Unknown"),
+                "department": entry.get("department"),
+                "total_points": int(entry.get("total_points", 0)),
+                "participations": int(entry.get("participations_count", 0)),
+                "wins": int(entry.get("wins_count", 0)),
+                "activity_level": entry.get("activity_level")
+                or determine_activity_level(int(entry.get("participations_count", 0))),
+                "last_submission": entry.get("last_participation_at"),
+            }
+            for entry in map(serialize_document, cursor)
+        ]
 
     @staticmethod
     def build_activity_status(current_user: dict) -> list[dict]:
         query = {"role": "student"}
-        if current_user.get("role") in {"faculty", "hod"} and current_user.get("department"):
+        role = current_user.get("role")
+        if role in {"faculty", "hod"} and current_user.get("department"):
             query["department"] = current_user["department"]
+        elif role == "student":
+            query["email"] = current_user["email"]
+
+        students = list(mongo_manager.users.find(query).sort("name", 1))
+        if not students:
+            return []
+
+        emails = [student["email"] for student in students]
+        score_map = {
+            score["student_email"]: score
+            for score in mongo_manager.scores.find({"student_email": {"$in": emails}})
+        }
 
         entries: list[dict] = []
-        for student in mongo_manager.users.find(query).sort("name", 1):
-            participation_count = mongo_manager.participations.count_documents(
-                {"student_email": student["email"]}
-            )
+        for student in students:
+            score = score_map.get(student["email"], {})
+            participations = int(score.get("participations_count", 0))
             entries.append(
                 {
                     "student_email": student["email"],
                     "student_name": student["name"],
                     "department": student.get("department"),
-                    "participations": participation_count,
-                    "activity_level": determine_activity_level(participation_count),
+                    "participations": participations,
+                    "activity_level": score.get("activity_level")
+                    or determine_activity_level(participations),
                 }
             )
         return entries

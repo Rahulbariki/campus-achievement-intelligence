@@ -12,12 +12,13 @@ from backend.app.services.ai_service import AIService
 router = APIRouter(tags=["AI"])
 
 
+@router.post("/generate-press-note", response_model=PressNoteResponse)
 @router.post("/press-note", response_model=PressNoteResponse)
 def generate_press_note(
     payload: PressNoteRequest,
     current_user: dict = Depends(require_roles("admin", "hod", "super_admin")),
 ) -> PressNoteResponse:
-    return PressNoteResponse(press_note=AIService.generate_press_note(payload))
+    return PressNoteResponse(**AIService.generate_press_note(payload, current_user))
 
 
 @router.post("/predict-achievement", response_model=PredictionResponse)

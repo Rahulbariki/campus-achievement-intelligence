@@ -1,4 +1,4 @@
-from pymongo import ASCENDING, MongoClient
+from pymongo import ASCENDING, DESCENDING, MongoClient
 
 from backend.app.core.config import settings
 
@@ -58,6 +58,7 @@ class MongoManager:
         self.participations.create_index([("achievement", ASCENDING), ("status", ASCENDING)])
 
         self.certificates.create_index([("student_email", ASCENDING)])
+        self.certificates.create_index([("student_email", ASCENDING), ("verification_status", ASCENDING)])
         self.certificates.create_index([("event_name", ASCENDING)])
         self.certificates.create_index([("achievement", ASCENDING)])
         self.certificates.create_index([("verification_status", ASCENDING)])
@@ -65,8 +66,13 @@ class MongoManager:
         self.scores.create_index("student_email", unique=True)
         self.scores.create_index([("student_user_id", ASCENDING)])
         self.scores.create_index([("activity_level", ASCENDING), ("total_points", ASCENDING)])
+        self.scores.create_index(
+            [("department", ASCENDING), ("total_points", DESCENDING), ("wins_count", DESCENDING)]
+        )
 
         self.press_notes.create_index([("student_user_id", ASCENDING)])
+        self.press_notes.create_index([("student_name", ASCENDING)])
+        self.press_notes.create_index([("event_name", ASCENDING)])
         self.press_notes.create_index([("generated_by_user_id", ASCENDING)])
         self.press_notes.create_index([("event_id", ASCENDING)])
         self.press_notes.create_index([("status", ASCENDING), ("created_at", ASCENDING)])
