@@ -12,3 +12,4 @@ bcrypt
 dnspython
 aiofiles
 certifi
+mongomock
