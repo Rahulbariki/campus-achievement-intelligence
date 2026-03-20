@@ -1,0 +1,182 @@
+diff --git a/frontend/src/index.css b/frontend/src/index.css
+index 7f134d9..a5eaad0 100644
+--- a/frontend/src/index.css
++++ b/frontend/src/index.css
+@@ -1,7 +1,7 @@
+ :root {
+   color-scheme: light;
+   --paper: #ffffff;
+-  --paper-strong: #f8f9fa;
++  --paper-strong: #fcfcfc;
+   --surface: #ffffff;
+   --surface-muted: #f1f3f5;
+   --ink: #1a1a1a;
+@@ -9,12 +9,14 @@
+   --muted-soft: #adb5bd;
+   --line: #dee2e6;
+   --line-soft: #f1f3f5;
+-  --accent: #0056b3;
+-  --accent-soft: rgba(0, 86, 179, 0.05);
++  --accent: #d9534f;
++  --accent-soft: rgba(217, 83, 79, 0.05);
+   --success: #2b8a3e;
+   --warning: #e67e22;
+   --terminal-bg: #1a1a1a;
+   --terminal-ink: #f8f9fa;
++  --sidebar-bg: #1a1a1a;
++  --sidebar-ink: #f9f9f7;
+   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+   --radius: 4px;
+@@ -72,12 +74,12 @@ h1, h2, h3, h4 {
+   position: sticky;
+   top: 0;
+   height: 100vh;
+-  width: 256px;
+-  background: var(--ink);
+-  color: var(--paper);
++  width: 320px;
++  background: var(--sidebar-bg);
++  color: var(--sidebar-ink);
+   display: flex;
+   flex-direction: column;
+-  padding: 2rem 1.25rem;
++  padding: 2.5rem 2rem;
+   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease-in-out;
+   flex-shrink: 0;
+   z-index: 100;
+@@ -85,8 +87,8 @@ h1, h2, h3, h4 {
+ }
+ 
+ .workspace-sidebar.is-collapsed {
+-  width: 68px;
+-  padding: 2rem 0.5rem;
++  width: 80px;
++  padding: 2.5rem 0.5rem;
+ }
+ 
+ .workspace-sidebar .brand-lockup p,
+@@ -294,18 +296,29 @@ textarea.font-mono:focus-visible {
+ .feature-card,
+ .role-card {
+   border: 1px solid var(--ink);
+-  background: rgba(255, 255, 255, 0.66);
+-  padding: 1rem;
+-  min-height: 170px;
+-  display: grid;
+-  align-content: start;
+-  gap: 0.6rem;
++  background: var(--paper);
++  padding: 1.5rem;
++  min-height: 180px;
++  display: flex;
++  flex-direction: column;
++  justify-content: flex-start;
++  gap: 0.75rem;
++  transition: transform 0.2s ease, box-shadow 0.2s ease;
++}
++
++.feature-card:hover,
++.role-card:hover {
++  transform: translateY(-2px);
++  box-shadow: 4px 4px 0 var(--ink);
+ }
+ 
+ .architecture-panel {
+   display: grid;
+-  gap: 1rem;
+-  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.8fr);
++  gap: 2rem;
++  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
++  border: 1px solid var(--ink);
++  padding: 2rem;
++  background: var(--paper);
+ }
+ 
+ .stack-list,
+@@ -386,7 +399,11 @@ textarea.font-mono:focus-visible {
+ }
+ 
+ .brand-lockup h1 {
+-  font-size: clamp(2.2rem, 4vw, 3.75rem);
++  font-size: clamp(1.8rem, 4vw, 2.75rem);
++  line-height: 1.05;
++  white-space: nowrap;
++  margin-bottom: 0.5rem;
++  font-family: 'Playfair Display', serif;
+ }
+ 
+ .workspace-sidebar .eyebrow,
+@@ -495,31 +512,68 @@ textarea.font-mono:focus-visible {
+ .metric-grid {
+   display: grid;
+   gap: 1.5rem;
+-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
++  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ }
+ 
+ .metric-card {
+   display: flex;
+   flex-direction: column;
++  gap: 1.5rem;
++  border: 1px solid var(--ink);
++  padding: 1.5rem;
++  background: var(--paper);
++}
++
++.metric-card--terminal {
++  background: var(--ink);
++  color: var(--paper);
++  border-color: var(--ink);
++}
++
++.metric-card__header {
++  display: flex;
++  justify-content: space-between;
++  align-items: flex-start;
+   gap: 0.5rem;
+ }
+ 
+ .metric-card strong {
+-  font-size: 2.5rem;
+-  font-weight: 800;
++  font-size: clamp(3rem, 5vw, 4rem);
++  font-weight: 500;
++  font-family: 'Playfair Display', serif;
++  line-height: 1;
++  color: inherit;
++}
++
++.metric-card p {
++  font-size: 0.85rem;
++  line-height: 1.5;
++  color: inherit;
++  opacity: 0.8;
++}
++
++.metric-card--terminal strong {
++  color: var(--paper);
++}
++
++.metric-card--terminal .eyebrow {
+   color: var(--accent);
+ }
+ 
+ .dashboard-grid {
+   display: grid;
+   gap: 2rem;
+-  grid-template-columns: 2fr 1fr;
++  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
++  align-items: start;
+ }
+ 
+ .panel-header {
+   margin-bottom: 1.5rem;
+   padding-bottom: 1rem;
+   border-bottom: 2px solid var(--ink);
++  display: flex;
++  flex-direction: column;
++  gap: 0.25rem;
+ }
+ 
+ .panel-header h3 {

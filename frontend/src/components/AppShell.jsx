@@ -21,26 +21,6 @@ export default function AppShell({ title, subtitle, children }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'system';
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'system') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (isDark) {
-        root.setAttribute('data-theme', 'dark');
-      } else {
-        root.removeAttribute('data-theme');
-      }
-    } else if (theme === 'dark') {
-      root.setAttribute('data-theme', 'dark');
-    } else {
-      root.removeAttribute('data-theme');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     setCurrentDate(
@@ -87,10 +67,8 @@ export default function AppShell({ title, subtitle, children }) {
         </div>
 
         <div className="brand-lockup">
-          <h1>Campus<br/>Achievement<br/>Intelligence<br/>Platform</h1>
-          <p className="sidebar-copy" style={{ marginTop: '0.75rem', fontFamily: '"Playfair Display", serif', fontSize: '0.9rem', lineHeight: 1.4, opacity: 0.9 }}>
-            {meta.strapline}
-          </p>
+          <h1 style={{ wordBreak: 'keep-all', overflowWrap: 'normal', whiteSpace: 'normal', hyphens: 'none' }}>Campus Achievement Intelligence Platform</h1>
+          <p className="eyebrow" style={{ marginTop: '0.5rem' }}>Workspace Edition</p>
         </div>
 
         <div className="user-card" style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '1.5rem' }}>
@@ -116,23 +94,7 @@ export default function AppShell({ title, subtitle, children }) {
           ))}
           
           <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
-            {!isCollapsed && (
-              <div style={{ display: 'flex', gap: '0.15rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.15)', padding: '0.25rem', borderRadius: '2rem', background: 'rgba(0,0,0,0.2)' }}>
-                <button 
-                  onClick={() => setTheme('light')} 
-                  style={{ flex: 1, padding: '0.4rem', background: theme === 'light' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'light' ? 'var(--sidebar-bg)' : 'rgba(255,255,255,0.6)', border: 'none', borderRadius: '2rem', cursor: 'pointer', fontFamily: '"Inter", sans-serif', fontSize: '0.7rem', fontWeight: '600', transition: 'all 0.2s' }}
-                >LGT</button>
-                <button 
-                  onClick={() => setTheme('system')} 
-                  style={{ flex: 1, padding: '0.4rem', background: theme === 'system' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'system' ? 'var(--sidebar-bg)' : 'rgba(255,255,255,0.6)', border: 'none', borderRadius: '2rem', cursor: 'pointer', fontFamily: '"Inter", sans-serif', fontSize: '0.7rem', fontWeight: '600', transition: 'all 0.2s' }}
-                >SYS</button>
-                <button 
-                  onClick={() => setTheme('dark')} 
-                  style={{ flex: 1, padding: '0.4rem', background: theme === 'dark' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'dark' ? 'var(--sidebar-bg)' : 'rgba(255,255,255,0.6)', border: 'none', borderRadius: '2rem', cursor: 'pointer', fontFamily: '"Inter", sans-serif', fontSize: '0.7rem', fontWeight: '600', transition: 'all 0.2s' }}
-                >DRK</button>
-              </div>
-            )}
-            <button className="ghost-button" onClick={logout} style={{ width: '100%', color: 'var(--sidebar-ink)', borderColor: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace' }}>
+            <button className="ghost-button" onClick={logout} style={{ width: '100%', color: 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace' }}>
               {isCollapsed ? '⏻' : 'SIGN OUT'}
             </button>
           </div>
