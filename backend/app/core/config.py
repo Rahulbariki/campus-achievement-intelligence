@@ -35,10 +35,25 @@ class Settings:
     cloudinary_api_key: str = os.getenv("CLOUDINARY_API_KEY", "")
     cloudinary_api_secret: str = os.getenv("CLOUDINARY_API_SECRET", "")
 
+    def __post_init__(self):
+        # Fallback to parse CLOUDINARY_URL if individuel keys are missing
+        cloudinary_url = os.getenv("CLOUDINARY_URL")
+        if cloudinary_url and not all([self.cloudinary_cloud_name, self.cloudinary_api_key, self.cloudinary_api_secret]):
+            try:
+                # Format: cloudinary://<api_key>:<api_secret>@<cloud_name>
+                core = cloudinary_url.split("://")[1]
+                credentials, cloud_name = core.split("@")
+                api_key, api_secret = credentials.split(":")
+                
+                # We have to bypass the frozen=True by using object.__setattr__
+                object.__setattr__(self, "cloudinary_cloud_name", cloud_name)
+                object.__setattr__(self, "cloudinary_api_key", api_key)
+                object.__setattr__(self, "cloudinary_api_secret", api_secret)
+            except (IndexError, ValueError):
+                pass
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
-
 
 settings = get_settings()

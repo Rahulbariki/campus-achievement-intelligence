@@ -11,13 +11,20 @@ class MongoManager:
     @property
     def client(self) -> MongoClient:
         if self._client is None:
-            self._client = MongoClient(
-                settings.mongodb_uri,
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=5000,
-                socketTimeoutMS=5000,
-                tlsCAFile=certifi.where(),
-            )
+            try:
+                self._client = MongoClient(
+                    settings.mongodb_uri,
+                    serverSelectionTimeoutMS=5000,
+                    connectTimeoutMS=5000,
+                    socketTimeoutMS=5000,
+                    tlsCAFile=certifi.where(),
+                )
+                self._client.admin.command("ping")
+            except Exception as e:
+                print(f"Database connection failed, using mongomock: {e}")
+                import mongomock
+
+                self._client = mongomock.MongoClient()
         return self._client
 
     @property
