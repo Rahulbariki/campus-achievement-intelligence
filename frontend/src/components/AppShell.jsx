@@ -146,15 +146,15 @@ export default function AppShell({ title, subtitle, children }) {
         </div>
       </aside>
 
-      <main className="workspace-main">
+      <main className="workspace-main" style={{ flex: 1, padding: '2rem' }}>
         <header className="workspace-header" style={{ border: '1px solid var(--ink)', padding: '2rem', marginBottom: '1.5rem', background: 'var(--paper)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.15em', marginBottom: '1rem' }}>ROLE WORKSPACE</p>
-            <h2 style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', lineHeight: 1.1, marginBottom: '0.5rem', letterSpacing: '-0.02em', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{title}</h2>
+            <p className="eyebrow" style={{ color: 'var(--accent)', letterSpacing: '0.15em', marginBottom: '1rem' }}>ROLE WORKSPACE</p>
+            <h2 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', lineHeight: 1.1, marginBottom: '0.5rem', letterSpacing: '-0.02em', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{title}</h2>
             <p className="font-serif" style={{ opacity: 0.8, fontSize: '1.05rem' }}>{subtitle}</p>
           </div>
           <div style={{ border: '1px solid var(--ink)', padding: '0.75rem 1rem', display: 'inline-flex', flexDirection: 'column', gap: '0.25rem', width: 'max-content', marginTop: '0.5rem' }}>
-            <span style={{ fontSize: '0.65rem', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.14em', color: '#d9534f', textTransform: 'uppercase' }}>DESK STATUS</span>
+            <span style={{ fontSize: '0.65rem', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.14em', color: 'var(--accent)', textTransform: 'uppercase' }}>DESK STATUS</span>
             <span style={{ fontSize: '0.75rem', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.1em', textTransform: 'uppercase' }}>LIVE EDITION</span>
             <span style={{ fontSize: '0.75rem', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.1em', opacity: 0.7, textTransform: 'uppercase' }}>FASTAPI / MONGODB / AI</span>
           </div>

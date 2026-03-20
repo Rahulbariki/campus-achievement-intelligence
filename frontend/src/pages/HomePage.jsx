@@ -22,8 +22,8 @@ export default function HomePage() {
 
   return (
     <div className="landing-shell">
-      <section className="landing-hero" style={{ border: '1px solid var(--ink)', padding: '2rem', marginBottom: '1rem', background: '#fcfcfc' }}>
-        <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.15em', marginBottom: '1rem' }}>CAMPUS ACHIEVEMENT INTELLIGENCE PLATFORM</p>
+      <section className="landing-hero" style={{ border: '1px solid var(--ink)', padding: '2rem', marginBottom: '1rem', background: 'var(--paper)' }}>
+        <p className="eyebrow" style={{ color: 'var(--accent)', letterSpacing: '0.15em', marginBottom: '1rem' }}>CAMPUS ACHIEVEMENT INTELLIGENCE PLATFORM</p>
         <h1 style={{ fontSize: 'clamp(4rem, 8vw, 6.5rem)', fontFamily: '"Playfair Display", serif', lineHeight: 0.95, letterSpacing: '-0.02em', marginBottom: '1.5rem', wordBreak: 'keep-all' }}>
           Track achievement, verify proof, and turn campus momentum into visible outcomes.
         </h1>

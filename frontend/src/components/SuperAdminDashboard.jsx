@@ -57,15 +57,15 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="panel" style={{ marginTop: '2rem' }}>
-      <div className="section-header" style={{ border: '1px solid var(--ink)', padding: '2rem', background: '#fcfcfc' }}>
-        <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.15em', marginBottom: '1rem' }}>LEVEL 5 ACCESS | DATABASE CONTROLLER</p>
+      <div className="section-header" style={{ border: '1px solid var(--ink)', padding: '2rem', background: 'var(--paper)' }}>
+        <p className="eyebrow" style={{ color: 'var(--accent)', letterSpacing: '0.15em', marginBottom: '1rem' }}>LEVEL 5 ACCESS | DATABASE CONTROLLER</p>
         <h3 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontFamily: '"Playfair Display", serif', textTransform: 'uppercase', marginBottom: '0.75rem' }}>SUPER ADMIN COMMAND CONSOLE</h3>
         <p className="font-serif" style={{ fontSize: '1.05rem', lineHeight: '1.5', opacity: '0.9', maxWidth: '800px' }}>Global override authority for document rectification, audit trail management, and systemic data hygiene.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '2rem', marginTop: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 300px) 1fr', gap: '2rem', marginTop: '2rem' }}>
         <aside>
-          <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.1em', marginBottom: '1rem' }}>SYSTEM COLLECTIONS</p>
+          <p className="eyebrow" style={{ color: 'var(--accent)', letterSpacing: '0.1em', marginBottom: '1rem' }}>SYSTEM COLLECTIONS</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderLeft: '1px solid var(--ink)', paddingLeft: '1rem' }}>
             {collections.map(c => (
               <button key={c} 
@@ -77,7 +77,8 @@ export default function SuperAdminDashboard() {
                    textTransform: 'uppercase',
                    fontFamily: '"JetBrains Mono", monospace',
                    border: selectedCollection === c ? '1px solid var(--ink)' : '1px solid transparent',
-                   background: selectedCollection === c ? 'var(--paper-strong)' : 'transparent',
+                   background: selectedCollection === c ? 'var(--surface-muted)' : 'transparent',
+                   color: 'var(--ink)',
                    padding: '0.75rem',
                    cursor: 'pointer'
                  }}>
@@ -89,22 +90,22 @@ export default function SuperAdminDashboard() {
 
         <main>
           <div className="metadata" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid transparent' }}>
-            <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.1em' }}>
+            <p className="eyebrow" style={{ color: 'var(--accent)', letterSpacing: '0.1em' }}>
               {selectedCollection ? `INSPECTING ${selectedCollection.toUpperCase()}` : 'SELECT COLLECTION TO INSPECT'}
             </p>
-            <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.1em' }}>
+            <p className="eyebrow" style={{ color: 'var(--accent)', letterSpacing: '0.1em' }}>
               {data.length} RECORDS CACHED
             </p>
           </div>
 
           {loading ? (
-             <div style={{ padding: '4rem', textAlign: 'center', border: '1px solid var(--ink)' }}>
+             <div style={{ padding: '4rem', textAlign: 'center', border: '1px solid var(--ink)', background: 'var(--paper)' }}>
                <p className="font-serif italic">Loading data streams...</p>
              </div>
           ) : (
-             <div className="table-container" style={{ border: '1px solid var(--ink)', maxHeight: '600px', overflowY: 'auto' }}>
+             <div className="table-container" style={{ border: '1px solid var(--ink)', maxHeight: '600px', overflowY: 'auto', background: 'var(--paper)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ background: '#f5f5f5', borderBottom: '1px solid var(--ink)' }}>
+                <thead style={{ background: 'var(--surface-muted)', borderBottom: '1px solid var(--ink)' }}>
                   <tr>
                     <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase' }}>OBJECT_ID</th>
                     <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase' }}>DATA_PAYLOAD_MAP</th>
@@ -113,7 +114,7 @@ export default function SuperAdminDashboard() {
                 </thead>
                 <tbody>
                   {data.map(doc => (
-                    <tr key={doc._id} style={{ borderBottom: '1px solid #eaeaea' }}>
+                    <tr key={doc._id} style={{ borderBottom: '1px solid var(--line)' }}>
                       <td style={{ padding: '1rem', fontSize: '0.75rem', fontFamily: '"JetBrains Mono", monospace', verticalAlign: 'top' }}>{doc._id}</td>
                       <td style={{ padding: '1rem', fontSize: '0.75rem', fontFamily: '"JetBrains Mono", monospace', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', verticalAlign: 'top' }}>
                         {JSON.stringify(doc)}
@@ -121,8 +122,8 @@ export default function SuperAdminDashboard() {
 
                       <td style={{ padding: '1rem', textAlign: 'right', verticalAlign: 'top' }}>
                         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                          <button style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', border: '1px solid var(--ink)', background: 'transparent', cursor: 'pointer' }} onClick={() => setEditingDoc(doc)}>EDIT</button>
-                          <button style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', border: '1px solid #d9534f', color: '#d9534f', background: 'transparent', cursor: 'pointer' }} onClick={() => handleDelete(doc._id)}>WARN</button>
+                          <button style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', border: '1px solid var(--ink)', color: 'var(--ink)', background: 'transparent', cursor: 'pointer' }} onClick={() => setEditingDoc(doc)}>EDIT</button>
+                          <button style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', border: '1px solid var(--accent)', color: 'var(--accent)', background: 'transparent', cursor: 'pointer' }} onClick={() => handleDelete(doc._id)}>WARN</button>
                         </div>
                       </td>
                     </tr>
