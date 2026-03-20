@@ -117,26 +117,23 @@ export default function AppShell({ title, subtitle, children }) {
           
           <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
             {!isCollapsed && (
-              <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.15rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.15)', padding: '0.25rem', borderRadius: '2rem', background: 'rgba(0,0,0,0.2)' }}>
                 <button 
                   onClick={() => setTheme('light')} 
-                  style={{ flex: 1, padding: '0.5rem', background: theme === 'light' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'light' ? 'var(--sidebar-bg)' : 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem' }}
-                  title="Light Theme"
-                >LIGHT</button>
+                  style={{ flex: 1, padding: '0.4rem', background: theme === 'light' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'light' ? 'var(--sidebar-bg)' : 'rgba(255,255,255,0.6)', border: 'none', borderRadius: '2rem', cursor: 'pointer', fontFamily: '"Inter", sans-serif', fontSize: '0.7rem', fontWeight: '600', transition: 'all 0.2s' }}
+                >LGT</button>
                 <button 
                   onClick={() => setTheme('system')} 
-                  style={{ flex: 1, padding: '0.5rem', background: theme === 'system' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'system' ? 'var(--sidebar-bg)' : 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem' }}
-                  title="System Theme"
-                >AUTO</button>
+                  style={{ flex: 1, padding: '0.4rem', background: theme === 'system' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'system' ? 'var(--sidebar-bg)' : 'rgba(255,255,255,0.6)', border: 'none', borderRadius: '2rem', cursor: 'pointer', fontFamily: '"Inter", sans-serif', fontSize: '0.7rem', fontWeight: '600', transition: 'all 0.2s' }}
+                >SYS</button>
                 <button 
                   onClick={() => setTheme('dark')} 
-                  style={{ flex: 1, padding: '0.5rem', background: theme === 'dark' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'dark' ? 'var(--sidebar-bg)' : 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem' }}
-                  title="Dark Theme"
-                >DARK</button>
+                  style={{ flex: 1, padding: '0.4rem', background: theme === 'dark' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'dark' ? 'var(--sidebar-bg)' : 'rgba(255,255,255,0.6)', border: 'none', borderRadius: '2rem', cursor: 'pointer', fontFamily: '"Inter", sans-serif', fontSize: '0.7rem', fontWeight: '600', transition: 'all 0.2s' }}
+                >DRK</button>
               </div>
             )}
             <button className="ghost-button" onClick={logout} style={{ width: '100%', color: 'var(--sidebar-ink)', borderColor: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace' }}>
-              {isCollapsed ? '⏻' : 'Sign Out (Logout)'}
+              {isCollapsed ? '⏻' : 'SIGN OUT'}
             </button>
           </div>
         </nav>
