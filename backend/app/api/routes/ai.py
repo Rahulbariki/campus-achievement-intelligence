@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from backend.app.api.deps import get_current_user, require_roles
 from backend.app.schemas.ai import (
+    CertificateAIResponse,
     PredictionRequest,
     PredictionResponse,
     PressNoteRequest,
@@ -10,6 +11,28 @@ from backend.app.schemas.ai import (
 from backend.app.services.ai_service import AIService
 
 router = APIRouter(tags=["AI"])
+
+
+@router.post("/verify-certificate-ai", response_model=CertificateAIResponse)
+async def verify_certificate_ai(
+    file: UploadFile = File(...),
+    certificate_id: str | None = Form(default=None),
+    current_user: dict = Depends(get_current_user),
+) -> CertificateAIResponse:
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty.",
+        )
+
+    result = AIService.extract_certificate(
+        filename=file.filename or "certificate",
+        file_bytes=file_bytes,
+        current_user=current_user,
+        certificate_id=certificate_id,
+    )
+    return CertificateAIResponse(**result)
 
 
 @router.post("/generate-press-note", response_model=PressNoteResponse)

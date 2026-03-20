@@ -116,7 +116,7 @@ class CertificateService:
                     "verified": True,
                     "verification_status": "verified",
                     "verified_at": verified_at,
-                    "verified_by_user_id": current_user.get("id"),
+                    "verified_by_user_id": str(current_user["_id"]),
                     "verified_by_email": current_user["email"],
                     "updated_at": verified_at,
                 }

@@ -32,6 +32,25 @@ class PressNoteResponse(BaseModel):
     created_at: datetime | None = None
 
 
+class CertificateAIResponse(BaseModel):
+    student_name: str | None = None
+    event_name: str | None = None
+    achievement: Achievement | None = None
+    confidence: float = Field(..., ge=0, le=1)
+    raw_text: str = ""
+    certificate_id: str | None = None
+
+    @root_validator(pre=True)
+    def map_legacy_fields(cls, values):  # noqa: N805
+        if not values.get("student_name") and values.get("name"):
+            values["student_name"] = values["name"]
+        if not values.get("event_name") and values.get("event"):
+            values["event_name"] = values["event"]
+        if values.get("raw_text") is None:
+            values["raw_text"] = ""
+        return values
+
+
 class PredictionRequest(BaseModel):
     student_name: str | None = None
     events_participated: int = Field(..., ge=0)
