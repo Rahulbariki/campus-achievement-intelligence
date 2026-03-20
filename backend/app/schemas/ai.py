@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, EmailStr, Field, root_validator, validator
 
 from backend.app.models import Achievement
 
@@ -55,10 +55,23 @@ class PredictionRequest(BaseModel):
     student_name: str | None = None
     events_participated: int = Field(..., ge=0)
     wins: int = Field(..., ge=0)
+    participation_frequency: float | None = Field(default=None, ge=0)
     categories: list[str] = Field(default_factory=list)
+
+    @validator("wins")
+    def wins_cannot_exceed_events(cls, value, values):  # noqa: N805
+        events_participated = values.get("events_participated")
+        if events_participated is not None and value > events_participated:
+            raise ValueError("wins cannot be greater than events_participated")
+        return value
 
 
 class PredictionResponse(BaseModel):
+    student_email: EmailStr | None = None
+    events_participated: int = Field(..., ge=0)
+    wins: int = Field(..., ge=0)
+    participation_frequency: float = Field(..., ge=0)
     win_probability: float
     activity_level: str
+    model_version: str
     summary: str

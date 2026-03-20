@@ -9,7 +9,7 @@ export default function ActivityDistributionChart({ items, ariaLabel }) {
             key={item.label}
             className={`distribution-chart__segment distribution-chart__segment--${item.tone}`}
             style={{
-              width: `${total > 0 ? Math.max((item.value / total) * 100, item.value ? 6 : 0)}%`,
+              width: `${total > 0 ? Math.max((item.value / total) * 100, item.value ? 6 : 0) : 0}%`,
             }}
           />
         ))}

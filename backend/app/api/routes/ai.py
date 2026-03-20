@@ -44,6 +44,14 @@ def generate_press_note(
     return PressNoteResponse(**AIService.generate_press_note(payload, current_user))
 
 
+@router.get("/predict/{student_email}", response_model=PredictionResponse)
+def predict_student(
+    student_email: str,
+    current_user: dict = Depends(get_current_user),
+) -> PredictionResponse:
+    return PredictionResponse(**AIService.predict_student(student_email, current_user))
+
+
 @router.post("/predict-achievement", response_model=PredictionResponse)
 def predict_achievement(
     payload: PredictionRequest,

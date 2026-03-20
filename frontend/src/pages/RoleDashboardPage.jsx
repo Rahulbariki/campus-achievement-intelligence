@@ -97,10 +97,7 @@ export default function RoleDashboardPage() {
     achievement: 'winner',
   });
   const [predictionForm, setPredictionForm] = useState({
-    student_name: user?.name ?? '',
-    events_participated: '0',
-    wins: '0',
-    categories: 'Hackathon, Workshop',
+    student_email: user?.email ?? '',
   });
 
   const canManageEvents = eventControlRoles.includes(role);
@@ -124,17 +121,12 @@ export default function RoleDashboardPage() {
       student_name: user?.name ?? '',
       department: user?.department ?? '',
     }));
-  }, [role, user]);
-
-  useEffect(() => {
-    const wins = participations.filter((item) => item.achievement === 'winner').length;
     setPredictionForm((current) => ({
       ...current,
-      student_name: user?.name ?? '',
-      events_participated: String(participations.length),
-      wins: String(wins),
+      student_email:
+        role === 'student' ? user?.email ?? '' : current.student_email || user?.email || '',
     }));
-  }, [participations, user]);
+  }, [role, user]);
 
   useEffect(() => {
     if (!certificateForm.participation_id) {
@@ -313,15 +305,9 @@ export default function RoleDashboardPage() {
     setMessage('');
 
     try {
-      const { data } = await api.post('/predict-achievement', {
-        student_name: predictionForm.student_name,
-        events_participated: Number(predictionForm.events_participated),
-        wins: Number(predictionForm.wins),
-        categories: predictionForm.categories
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean),
-      });
+      const { data } = await api.get(
+        `/predict/${encodeURIComponent(predictionForm.student_email)}`,
+      );
       setPrediction(data);
       setMessage('Prediction console returned a fresh projection.');
     } catch (requestError) {
@@ -806,3 +792,109 @@ export default function RoleDashboardPage() {
               </p>
             )}
           </Panel>
+
+          {canGeneratePressNote ? (
+            <Panel id="ai-lab" eyebrow="AI Lab" title="Press Desk">
+              <form className="form-grid compact" onSubmit={handlePressNoteSubmit}>
+                <label>
+                  Student Name
+                  <input
+                    name="student_name"
+                    value={pressForm.student_name}
+                    onChange={handleChange(setPressForm)}
+                    required
+                  />
+                </label>
+                <label>
+                  Department
+                  <input
+                    name="department"
+                    value={pressForm.department}
+                    onChange={handleChange(setPressForm)}
+                    required
+                  />
+                </label>
+                <label className="span-2">
+                  Event Name
+                  <input
+                    name="event_name"
+                    value={pressForm.event_name}
+                    onChange={handleChange(setPressForm)}
+                    required
+                  />
+                </label>
+                <label className="span-2">
+                  Achievement
+                  <select
+                    name="achievement"
+                    value={pressForm.achievement}
+                    onChange={handleChange(setPressForm)}
+                  >
+                    {achievementOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="primary-button"
+                  type="submit"
+                  disabled={busyAction === 'press-note'}
+                >
+                  {busyAction === 'press-note' ? 'Drafting...' : 'Draft Official Note'}
+                </button>
+              </form>
+
+              {pressNoteResult ? (
+                <article className="result-block result-block--article">
+                  <p className="eyebrow">Publication Draft</p>
+                  <h4>{pressNoteResult.title}</h4>
+                  <p>{pressNoteResult.press_note}</p>
+                </article>
+              ) : null}
+            </Panel>
+          ) : null}
+
+          <Panel
+            id={canGeneratePressNote ? undefined : 'ai-lab'}
+            eyebrow="AI Lab"
+            title="Prediction Console"
+            variant="terminal"
+          >
+            <form className="form-grid compact" onSubmit={handlePredictionSubmit}>
+              <label>
+                Student Email
+                <input
+                  name="student_email"
+                  type="email"
+                  value={predictionForm.student_email}
+                  onChange={handleChange(setPredictionForm)}
+                />
+              </label>
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={busyAction === 'prediction' || !predictionForm.student_email}
+              >
+                {busyAction === 'prediction' ? 'Computing...' : 'Run Forecast'}
+              </button>
+            </form>
+
+            {prediction ? (
+              <div className="terminal-readout">
+                <strong>{Math.round(prediction.win_probability * 100)}% win probability</strong>
+                <p>{prediction.activity_level}</p>
+                <p>
+                  {prediction.events_participated} events | {prediction.wins} wins |{' '}
+                  {prediction.participation_frequency}/month
+                </p>
+                <p>{prediction.summary}</p>
+              </div>
+            ) : null}
+          </Panel>
+        </div>
+      </div>
+    </AppShell>
+  );
+}

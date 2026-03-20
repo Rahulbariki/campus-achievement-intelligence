@@ -4,7 +4,10 @@ import re
 from bson import ObjectId
 from fastapi import HTTPException, status
 
-from ai_engine.achievement_predictor import predict_student_outcomes
+from ai_engine.achievement_predictor import (
+    calculate_participation_frequency,
+    predict_student_outcomes,
+)
 from ai_engine.certificate_ocr import extract_certificate_details
 from ai_engine.press_note_generator import generate_press_note as build_press_note
 from backend.app.core.database import mongo_manager
@@ -112,16 +115,132 @@ class AIService:
 
     @staticmethod
     def predict_achievement(payload: PredictionRequest) -> dict:
-        return predict_student_outcomes(
-            events_participated=payload.events_participated,
-            wins=payload.wins,
-            categories=payload.categories,
-            student_name=payload.student_name,
+        try:
+            return predict_student_outcomes(
+                events_participated=payload.events_participated,
+                wins=payload.wins,
+                participation_frequency=payload.participation_frequency,
+                student_name=payload.student_name,
+            )
+        except RuntimeError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(exc),
+            ) from exc
+
+    @staticmethod
+    def predict_student(student_email: str, current_user: dict) -> dict:
+        normalized_email = student_email.strip().lower()
+        student = mongo_manager.users.find_one(
+            {
+                "email": normalized_email,
+                "role": "student",
+            }
         )
+        if student is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Student account could not be found.",
+            )
+
+        AIService._validate_prediction_access(student, current_user)
+
+        participation_records = list(
+            mongo_manager.participations.find(
+                {"student_email": normalized_email},
+                {
+                    "achievement": 1,
+                    "submitted_at": 1,
+                    "created_at": 1,
+                    "updated_at": 1,
+                },
+            )
+        )
+        if participation_records:
+            events_participated = len(participation_records)
+            wins = sum(
+                1
+                for record in participation_records
+                if record.get("achievement") == "winner"
+            )
+            participation_frequency = calculate_participation_frequency(
+                [
+                    record.get("submitted_at")
+                    or record.get("created_at")
+                    or record.get("updated_at")
+                    for record in participation_records
+                ]
+            )
+        else:
+            score = mongo_manager.scores.find_one({"student_email": normalized_email}) or {}
+            verified_certificates = list(
+                mongo_manager.certificates.find(
+                    {
+                        "student_email": normalized_email,
+                        "verification_status": "verified",
+                    },
+                    {
+                        "achievement": 1,
+                        "verified_at": 1,
+                        "uploaded_at": 1,
+                        "updated_at": 1,
+                    },
+                )
+            )
+            events_participated = int(
+                score.get("participations_count", len(verified_certificates))
+            )
+            wins = int(score.get("wins_count", 0)) or sum(
+                1
+                for record in verified_certificates
+                if record.get("achievement") == "winner"
+            )
+            participation_frequency = calculate_participation_frequency(
+                [
+                    record.get("verified_at")
+                    or record.get("uploaded_at")
+                    or record.get("updated_at")
+                    for record in verified_certificates
+                ]
+            )
+
+        try:
+            return predict_student_outcomes(
+                events_participated=events_participated,
+                wins=wins,
+                participation_frequency=participation_frequency,
+                student_name=student.get("name"),
+                student_email=normalized_email,
+            )
+        except RuntimeError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(exc),
+            ) from exc
 
     @staticmethod
     def _build_press_note_title(student_name: str, event_name: str) -> str:
         return f"{student_name.strip()} Earns Recognition in {event_name.strip()}"
+
+    @staticmethod
+    def _validate_prediction_access(student: dict, current_user: dict) -> None:
+        current_role = current_user.get("role")
+        current_email = str(current_user.get("email", "")).strip().lower()
+        target_email = str(student.get("email", "")).strip().lower()
+
+        if current_role == "student" and current_email != target_email:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Students can only request predictions for their own account.",
+            )
+
+        if current_role in {"faculty", "hod"}:
+            student_department = student.get("department")
+            if student_department != current_user.get("department"):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can only access predictions for students in your department.",
+                )
 
     @staticmethod
     def _get_certificate_for_ocr(certificate_id: str, current_user: dict) -> dict:

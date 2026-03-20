@@ -1,0 +1,14 @@
+# Exclude large redundant folders from Vercel deployment
+ai_engine/
+campus-achievement-ai/
+python/
+dashboard/
+frontend/node_modules/
+.git/
+*.pyc
+__pycache__/
+.venv/
+node_modules/
+dist/
+certificates/
+/tmp/

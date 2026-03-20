@@ -53,6 +53,7 @@ class MongoManager:
             [("student_email", ASCENDING), ("event_id", ASCENDING)],
             unique=True,
         )
+        self.participations.create_index([("student_email", ASCENDING), ("submitted_at", DESCENDING)])
         self.participations.create_index([("student_user_id", ASCENDING)])
         self.participations.create_index([("event_id", ASCENDING)])
         self.participations.create_index([("achievement", ASCENDING), ("status", ASCENDING)])

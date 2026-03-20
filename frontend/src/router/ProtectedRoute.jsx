@@ -17,7 +17,7 @@ export default function ProtectedRoute({ allowedRoles }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(role)) {

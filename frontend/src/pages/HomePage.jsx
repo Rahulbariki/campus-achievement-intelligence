@@ -31,7 +31,7 @@ export default function HomePage() {
         </p>
 
         <div className="cta-row">
-          <Link className="primary-button" to={isAuthenticated ? dashboardPath : '/auth'}>
+          <Link className="primary-button" to={isAuthenticated ? dashboardPath : '/login'}>
             {isAuthenticated ? 'Open Workspace' : 'Launch Secure Access'}
           </Link>
           <a className="ghost-button" href="#architecture">
