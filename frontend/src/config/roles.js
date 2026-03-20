@@ -37,9 +37,9 @@ export const roleOptions = Object.entries(roleMeta).map(([value, meta]) => ({
 }));
 
 export const eventControlRoles = ['admin', 'hod', 'super_admin'];
-export const activityRoles = ['faculty', 'admin', 'hod', 'super_admin'];
+export const activityRoles = ['student', 'faculty', 'admin', 'hod', 'super_admin'];
 export const pressNoteRoles = ['admin', 'hod', 'super_admin'];
-export const certificateUploadRoles = ['student', 'faculty', 'admin'];
+export const certificateUploadRoles = ['student', 'faculty', 'admin', 'hod', 'super_admin'];
 
 export function getDashboardPath(role) {
   const meta = roleMeta[role] ?? roleMeta.student;

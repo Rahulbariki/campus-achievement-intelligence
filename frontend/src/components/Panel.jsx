@@ -1,6 +1,17 @@
-export default function Panel({ id, title, eyebrow, children, actions }) {
+export default function Panel({
+  id,
+  title,
+  eyebrow,
+  children,
+  actions,
+  variant = 'editorial',
+  className = '',
+}) {
   return (
-    <section id={id} className="panel">
+    <section
+      id={id}
+      className={`panel panel--${variant} ${className}`.trim()}
+    >
       <div className="panel-header">
         <div>
           {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
