@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date as date_type, datetime
 
 from pydantic import BaseModel, EmailStr, Field, root_validator
 
@@ -7,7 +7,7 @@ class EventBase(BaseModel):
     event_name: str = Field(..., min_length=3, max_length=160)
     organizer: str = Field(..., min_length=2, max_length=160)
     category: str = Field(..., min_length=2, max_length=80)
-    date: date
+    date: date_type
     description: str | None = Field(default=None, max_length=1000)
     title: str | None = Field(
         default=None,
@@ -31,7 +31,7 @@ class EventUpdate(BaseModel):
     event_name: str | None = Field(default=None, min_length=3, max_length=160)
     organizer: str | None = Field(default=None, min_length=2, max_length=160)
     category: str | None = Field(default=None, min_length=2, max_length=80)
-    date: date | None = None
+    date: date_type | None = None
     description: str | None = Field(default=None, max_length=1000)
 
 
