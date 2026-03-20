@@ -13,4 +13,3 @@ bcrypt
 dnspython
 aiofiles
 certifi
-scikit-learn

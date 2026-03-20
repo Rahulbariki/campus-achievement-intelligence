@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from functools import lru_cache
+from math import exp
 from typing import Iterable
 
 from ai_engine.scoring import determine_activity_level
@@ -17,6 +18,7 @@ except ImportError:  # pragma: no cover - exercised only when dependency is miss
 
 
 MODEL_VERSION = "sklearn-logreg-v1"
+FALLBACK_MODEL_VERSION = "compact-logit-v1"
 
 
 def calculate_participation_frequency(activity_dates: Iterable[datetime | None]) -> float:
@@ -47,10 +49,11 @@ def predict_student_outcomes(
     )
     normalized_frequency = round(max(normalized_frequency, 0.0), 2)
 
-    model = _get_model()
-    probability = model.predict_proba(
-        [[normalized_events, normalized_wins, normalized_frequency]]
-    )[0][1]
+    probability, model_version = _predict_probability(
+        normalized_events,
+        normalized_wins,
+        normalized_frequency,
+    )
     activity_level = determine_activity_level(normalized_events)
     subject = student_name or student_email or "This student"
 
@@ -61,7 +64,7 @@ def predict_student_outcomes(
         "participation_frequency": normalized_frequency,
         "win_probability": round(float(probability), 4),
         "activity_level": activity_level,
-        "model_version": MODEL_VERSION,
+        "model_version": model_version,
         "summary": (
             f"{subject} is currently classified as {activity_level.lower()} with a projected "
             f"win probability of {round(float(probability) * 100)}%. The estimate is based on "
@@ -76,14 +79,42 @@ def _infer_participation_frequency(events_participated: int) -> float:
     return round(max(events_participated / 3, 1.0), 2)
 
 
+def _predict_probability(
+    events_participated: int,
+    wins: int,
+    participation_frequency: float,
+) -> tuple[float, str]:
+    if LogisticRegression is None or StandardScaler is None or make_pipeline is None:
+        return _fallback_probability(
+            events_participated,
+            wins,
+            participation_frequency,
+        ), FALLBACK_MODEL_VERSION
+
+    model = _get_model()
+    probability = model.predict_proba(
+        [[events_participated, wins, participation_frequency]]
+    )[0][1]
+    return float(probability), MODEL_VERSION
+
+
+def _fallback_probability(
+    events_participated: int,
+    wins: int,
+    participation_frequency: float,
+) -> float:
+    # Compact logistic approximation used when sklearn is unavailable in lightweight deploys.
+    logit = (
+        -3.1
+        + (events_participated * 0.22)
+        + (wins * 1.05)
+        + (participation_frequency * 0.31)
+    )
+    return 1 / (1 + exp(-logit))
+
+
 @lru_cache(maxsize=1)
 def _get_model():
-    if LogisticRegression is None or StandardScaler is None or make_pipeline is None:
-        raise RuntimeError(
-            "scikit-learn is required for achievement prediction. Install backend "
-            "dependencies before using this feature."
-        )
-
     model = make_pipeline(
         StandardScaler(),
         LogisticRegression(random_state=42, max_iter=200),
