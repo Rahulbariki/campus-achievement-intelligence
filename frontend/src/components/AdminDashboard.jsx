@@ -170,8 +170,13 @@ function AdminDashboard({ token }) {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
                            target="_blank" rel="noreferrer" className="view-link" style={{ textAlign: 'center' }}>
-                          Examine
+                          Examine Cert
                         </a>
+                        {cert.event_photo_url && (
+                          <a href={cert.event_photo_url} target="_blank" rel="noreferrer" className="view-link" style={{ color: 'var(--editorial-red)', textAlign: 'center' }}>
+                            Dignitary Photo
+                          </a>
+                        )}
                         {!cert.verified && (
                           <div style={{ display: 'flex', gap: '0.25rem' }}>
                             <button className="small-btn btn-success" style={{ flex: 1 }} onClick={() => verify(cert.file_name)}>PASS</button>

@@ -7,11 +7,13 @@ function StudentDashboard({ token }) {
   const [eventName, setEventName] = useState('');
   const [achievement, setAchievement] = useState('participant');
   const [file, setFile] = useState(null);
+  const [eventPhoto, setEventPhoto] = useState(null);
   const [message, setMessage] = useState('');
   const [myCertificates, setMyCertificates] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [activityRank, setActivityRank] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -43,17 +45,40 @@ function StudentDashboard({ token }) {
     formData.append('event_name', eventName);
     formData.append('achievement', achievement);
     formData.append('file', file);
+    if (eventPhoto) formData.append('event_photo', eventPhoto);
 
     try {
       await axios.post(`${API_BASE}/upload-certificate`, formData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
       });
-      setMessage('Certificate uploaded and pending verification!');
+      setMessage('Achievement recorded! Dignitary photo and certificate submitted.');
+      setEventName('');
+      setFile(null);
+      setEventPhoto(null);
       fetchData();
     } catch (err) {
       setMessage(err.response?.data?.detail || 'Upload failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportPortfolio = async () => {
+    setExportLoading(true);
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_BASE}/export-portfolio-pdf`, { headers, responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Portfolio_${localStorage.getItem('userName')?.replace(/\s/g, '_') || 'Student'}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      alert('Portfolio export failed: ' + err.message);
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -105,9 +130,15 @@ function StudentDashboard({ token }) {
                 </select>
               </div>
               <div className="form-group">
-                <label>VERIFIABLE PROOF (PDF/IMAGE)</label>
+                <label>VERIFIABLE PROOF (CERTIFICATE PDF/IMAGE)</label>
                 <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="application/pdf,image/*" required 
-                       style={{ border: '1px dashed var(--ink-black)', padding: '1rem' }} />
+                       style={{ border: '1px dashed var(--ink-black)', padding: '1rem', background: '#fafafa' }} />
+              </div>
+              <div className="form-group">
+                <label>EVENT PHOTO WITH DIGNITARIES (OPTIONAL IMAGE)</label>
+                <input type="file" onChange={(e) => setEventPhoto(e.target.files[0])} accept="image/*" 
+                       style={{ border: '1px dashed var(--editorial-red)', padding: '1rem', background: '#fafafa' }} />
+                <small className="metadata" style={{ marginTop: '0.25rem' }}>Upload photo with guest/principal for added merit</small>
               </div>
               <button className="primary-btn h-12" type="submit" disabled={loading} style={{ width: '100%' }}>
                 {loading ? 'PROCESSING...' : 'SUBMIT FOR VERIFICATION'}
@@ -133,7 +164,12 @@ function StudentDashboard({ token }) {
 
         <section className="table-full-section newsprint-texture">
           <div className="metadata" style={{ marginBottom: '0.5rem' }}>LEDGER RECORD</div>
-          <h3>VERIFIED ACADEMIC PORTFOLIO</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3>VERIFIED ACADEMIC PORTFOLIO</h3>
+            <button className="primary-btn" onClick={exportPortfolio} disabled={exportLoading || myCertificates.length === 0} style={{ padding: '0.6rem 2rem' }}>
+              {exportLoading ? 'COMPILING TRANSCRIPT...' : 'DOWNLOAD PERFORMANCE TRANSCRIPT (PDF)'}
+            </button>
+          </div>
           <div className="table-container">
             <table>
               <thead>
@@ -164,10 +200,17 @@ function StudentDashboard({ token }) {
                         {cert.verification_comment || cert.rejection_reason || 'Examination in progress...'}
                       </td>
                       <td>
-                        <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
-                           target="_blank" rel="noreferrer" className="view-link">
-                          Examine Proof
-                        </a>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                          <a href={cert.cloudinary_url || `/certificate-files/${cert.file_name}`} 
+                             target="_blank" rel="noreferrer" className="view-link" style={{ textAlign: 'center' }}>
+                            Cert Proof
+                          </a>
+                          {cert.event_photo_url && (
+                             <a href={cert.event_photo_url} target="_blank" rel="noreferrer" className="view-link" style={{ color: 'var(--editorial-red)', textAlign: 'center' }}>
+                               Dignitary Photo
+                             </a>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))

@@ -106,41 +106,41 @@ def upload_certificate(
     event_name: str,
     achievement: str,
     file: UploadFile = File(...),
+    event_photo: UploadFile = File(None),
     user: dict = Depends(check_role('student', 'admin', 'hod', 'super_admin'))
 ):
     if user.get('role') != 'student' and user.get('role') not in ['admin', 'hod', 'super_admin']:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Only student/admin/hod/super_admin can upload certificates')
 
-    ALLOWED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
-    MAX_BYTES = 10 * 1024 * 1024
-
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid file type')
-
-    file.file.seek(0, os.SEEK_END)
-    size = file.file.tell()
-    file.file.seek(0)
-
-    if size > MAX_BYTES:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail='File size exceeds 10MB')
-
-    # 1. Save Locally for OCR / Audit
     CERT_DIR = '/tmp/certificates' if os.environ.get('VERCEL') else 'certificates'
     os.makedirs(CERT_DIR, exist_ok=True)
+
+    # 1. Upload Certificate
     safe_name = os.path.basename(file.filename)
     unique_name = f"{uuid.uuid4().hex}_{safe_name}"
     file_path = os.path.join(CERT_DIR, unique_name)
-
     with open(file_path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # 2. Upload to Cloudinary for Persistence
+    cloud_url = None
     try:
         upload_result = cloudinary.uploader.upload(file_path, folder="campus_certificates")
         cloud_url = upload_result.get('secure_url')
     except Exception as e:
-        print(f"Cloudinary upload failed: {e}")
-        cloud_url = None
+        print(f"Cloudinary (Cert) upload failed: {e}")
+
+    # 2. Optional Event Photo Upload
+    photo_url = None
+    if event_photo:
+        photo_name = f"photo_{uuid.uuid4().hex}_{os.path.basename(event_photo.filename)}"
+        photo_path = os.path.join(CERT_DIR, photo_name)
+        with open(photo_path, 'wb') as buffer:
+            shutil.copyfileobj(event_photo.file, buffer)
+        try:
+            photo_result = cloudinary.uploader.upload(photo_path, folder="event_photos")
+            photo_url = photo_result.get('secure_url')
+        except Exception as e:
+            print(f"Cloudinary (Photo) upload failed: {e}")
 
     certificates.insert_one({
         'student_email': student_email,
@@ -149,23 +149,19 @@ def upload_certificate(
         'file_name': unique_name,
         'original_file_name': safe_name,
         'cloudinary_url': cloud_url,
+        'event_photo_url': photo_url,
         'verified': False,
-        'verified_by': None,
-        'verification_comment': None,
-        'rejection_reason': None,
         'uploaded_at': datetime.utcnow()
     })
 
     audit_logs.insert_one({
         'action': 'upload_certificate',
         'file_name': file.filename,
-        'cloudinary_url': cloud_url,
         'user': user.get('email'),
-        'role': user.get('role'),
         'timestamp': datetime.utcnow()
     })
 
-    return {'message': 'Certificate uploaded successfully', 'url': cloud_url}
+    return {'message': 'Certificate uploaded successfully', 'url': cloud_url, 'photo_url': photo_url}
 
 @event_router.get('/certificates')
 def get_certificates(user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):
@@ -272,23 +268,85 @@ def get_activity_score(user: dict = Depends(get_current_user)):
         return {'student_email': user.get('email'), 'total_points': 0, 'participations': 0, 'wins': 0}
     return score
 
+from datetime import datetime, timedelta
+
 @event_router.get('/activity-ranking')
-def get_activity_ranking(user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):
+def get_activity_ranking(days: int = None, user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):
+    if days:
+        # Filter based on uploaded certificates in the last X days
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        # Aggregate manually for the filtered period
+        pipeline = [
+            {'$match': {'verified': True, 'uploaded_at': {'$gte': cutoff}}},
+            {'$group': {
+                '_id': '$student_email',
+                'total_points': {'$sum': {'$cond': [
+                    {'$eq': ['$achievement', 'winner']}, 100,
+                    {'$cond': [{'$eq': ['$achievement', 'runner_up']}, 50,
+                    {'$cond': [{'$eq': ['$achievement', 'finalist']}, 70, 20]}]}
+                ]}},
+                'participations': {'$sum': 1},
+                'wins': {'$sum': {'$cond': [{'$eq': ['$achievement', 'winner']}, 1, 0]}}
+            }},
+            {'$project': {
+                'student_email': '$_id',
+                'total_points': 1,
+                'participations': 1,
+                'wins': 1,
+                '_id': 0
+            }},
+            {'$sort': {'total_points': -1}}
+        ]
+        results = list(certificates.aggregate(pipeline))
+        return results
+    
+    # Default: Return all-time scores from activity_scores collection
     ranking = list(activity_scores.find({}, {'_id': 0}).sort('total_points', -1))
     return ranking
 
 @event_router.get('/activity-status')
-def get_activity_status(user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):
-    active = list(activity_scores.find({'participations': {'$gte': 5}}, {'_id': 0}))
-    moderate = list(activity_scores.find({'participations': {'$gte': 2, '$lt': 5}}, {'_id': 0}))
-    inactive = list(activity_scores.find({'participations': {'$lt': 2}}, {'_id': 0}))
+def get_activity_status(days: int = None, user: dict = Depends(check_role('admin', 'hod', 'super_admin'))):
+    query = {}
+    if days:
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        query = {'uploaded_at': {'$gte': cutoff}, 'verified': True}
+        
+        # We need a dynamic count of participations per student for this period
+        pipeline = [
+            {'$match': query},
+            {'$group': {'_id': '$student_email', 'count': {'$sum': 1}}}
+        ]
+        counts = {item['_id']: item['count'] for item in certificates.aggregate(pipeline)}
+        
+        # Categorize
+        highly_active = [email for email, c in counts.items() if c >= 5]
+        moderate = [email for email, c in counts.items() if 2 <= c < 5]
+        inactive = [email for email, c in counts.items() if c < 2]
+        # Note: 'inactive' here only includes those who participated < 2 times. 
+        # Truly inactive (0 participations) won't show in the aggregate unless we cross-ref with users.
+    else:
+        # Use existing logic from activity_scores
+        active = list(activity_scores.find({'participations': {'$gte': 5}}, {'_id': 0}))
+        moderate = list(activity_scores.find({'participations': {'$gte': 2, '$lt': 5}}, {'_id': 0}))
+        inactive = list(activity_scores.find({'participations': {'$lt': 2}}, {'_id': 0}))
+        
+        return {
+            'highly_active': active,
+            'moderate': moderate,
+            'inactive': inactive,
+            'counts': {
+                'highly_active': len(active),
+                'moderate': len(moderate),
+                'inactive': len(inactive)
+            }
+        }
 
     return {
-        'highly_active': active,
+        'highly_active': highly_active,
         'moderate': moderate,
         'inactive': inactive,
         'counts': {
-            'highly_active': len(active),
+            'highly_active': len(highly_active),
             'moderate': len(moderate),
             'inactive': len(inactive)
         }
@@ -359,3 +417,80 @@ def get_prediction(student_email: str, user: dict = Depends(check_role('admin', 
         prediction = predict_achievement_success(participations_count, wins_count, avg_points)
         
     return prediction
+
+from fastapi.responses import Response
+from fpdf import FPDF
+
+@event_router.get('/export-portfolio-pdf')
+def export_portfolio_pdf(user: dict = Depends(get_current_user)):
+    # 1. Fetch Student Info
+    from database import users
+    student = users.find_one({'email': user.get('email')}, {'_id': 0, 'password': 0})
+    if not student:
+        raise HTTPException(status_code=404, detail='Student not found')
+
+    # 2. Fetch Verified Certificates
+    items = list(certificates.find({'student_email': user.get('email'), 'verified': True}, {'_id': 0}).sort('uploaded_at', -1))
+    
+    # 3. Fetch Score
+    score = activity_scores.find_one({'student_email': user.get('email')}, {'_id': 0})
+    points = score.get('total_points', 0) if score else 0
+
+    # 4. Generate PDF
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Branding Header
+    pdf.set_font("Helvetica", "B", 18)
+    pdf.cell(0, 15, "CAMPUS ACHIEVEMENT INTELLIGENCE", ln=True, align="C")
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 10, "OFFICIAL PERFORMANCE TRANSCRIPT", ln=True, align="C")
+    pdf.line(10, 35, 200, 35)
+    pdf.ln(10)
+    
+    # Student Details
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(40, 7, "NAME:", 0, 0); pdf.set_font("Helvetica", "", 11); pdf.cell(0, 7, student.get('name', 'N/A').upper(), 0, 1)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(40, 7, "EMAIL:", 0, 0); pdf.set_font("Helvetica", "", 11); pdf.cell(0, 7, student.get('email', 'N/A'), 0, 1)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(40, 7, "DEPARTMENT:", 0, 0); pdf.set_font("Helvetica", "", 11); pdf.cell(0, 7, student.get('department', 'N/A'), 0, 1)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(40, 7, "MERIT POINTS:", 0, 0); pdf.set_font("Helvetica", "B", 11); pdf.cell(0, 7, str(points), 0, 1)
+    pdf.ln(10)
+
+    # Achievements Table
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 10, "VERIFIED ACADEMIC & TECHNICAL ACHIEVEMENTS", ln=True)
+    pdf.ln(2)
+    
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.cell(100, 8, " EVENT NAME", 1, 0, 'L', True)
+    pdf.cell(38, 8, " ACHIEVEMENT", 1, 0, 'C', True)
+    pdf.cell(52, 8, " DATE VERIFIED", 1, 1, 'C', True)
+    
+    pdf.set_font("Helvetica", "", 9)
+    for cert in items:
+        pdf.cell(100, 8, f" {cert['event_name'].upper()[:50]}", 1)
+        pdf.cell(38, 8, cert['achievement'].replace('_', ' ').title(), 1, 0, 'C')
+        pdf.cell(52, 8, cert['uploaded_at'].strftime('%Y-%m-%d') if isinstance(cert['uploaded_at'], datetime) else str(cert['uploaded_at'])[:10], 1, 1, 'C')
+
+    if not items:
+        pdf.cell(190, 8, "No verified achievements found in the record.", 1, 1, 'C')
+
+    # Legal Disclaimer
+    pdf.set_y(-30)
+    pdf.set_font("Helvetica", "I", 8)
+    # Handle latin-1 encoding for special chars
+    disclaimer = "This is a computer-generated document verified by the Campus Achievement Intelligence System. It serves as an official proof of extracurricular and technical participation for the mentioned student."
+    pdf.multi_cell(0, 5, disclaimer.encode('latin-1', 'replace').decode('latin-1'), 0, 'C')
+    
+    pdf_bytes = pdf.output()
+    filename = f"Portfolio_{student.get('name', 'Student').replace(' ', '_')}.pdf"
+    
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

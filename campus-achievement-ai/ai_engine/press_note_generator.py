@@ -43,3 +43,41 @@ We are incredibly proud of your hard work and achievement. Keep shining! ✨
 #SanthiramEngineeringCollege #StudentAchievement #Winner #ProudMoment #{department.replace(' ', '')} #{event_name.replace(' ', '')}
 """
     return post.strip()
+
+import datetime
+
+def generate_department_briefing(achievements: list, period: str):
+    """
+    Generates a high-level briefing for HODs to present monthly achievements.
+    """
+    if not achievements:
+        return f"No major achievements recorded for the period: {period}."
+
+    date_str = datetime.date.today().strftime("%B %d, %Y")
+    
+    summary_lines = []
+    for art in achievements[:10]: # Top 10
+        email = art.get('student_email', 'Unknown')
+        event = art.get('event_name', 'Unknown Event')
+        achievement = art.get('achievement', 'Participation')
+        summary_lines.append(f"• {email.split('@')[0].upper()}: Secured {achievement.replace('_', ' ').title()} in '{event}'.")
+
+    briefing = f"""
+DEPARTMENTAL ACHIEVEMENT BRIEFING
+Period: {period}
+Generated on: {date_str}
+
+EXECUTIVE SUMMARY:
+The department has witnessed a significant surge in student engagement during this period. Our students have successfully represented the institution in various technical and cultural platforms.
+
+KEY HIGHLIGHTS:
+{chr(10).join(summary_lines)}
+
+CONCLUSION:
+Based on the current trends, the department's engagement index is on an upward trajectory. We recommend continuing the mentorship programs to sustain this momentum.
+
+---
+Issued by:
+Campus Achievement Intelligence System
+"""
+    return briefing.strip()
