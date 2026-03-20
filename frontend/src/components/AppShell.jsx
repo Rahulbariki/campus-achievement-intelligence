@@ -21,6 +21,26 @@ export default function AppShell({ title, subtitle, children }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'system';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (isDark) {
+        root.setAttribute('data-theme', 'dark');
+      } else {
+        root.removeAttribute('data-theme');
+      }
+    } else if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     setCurrentDate(
@@ -96,8 +116,27 @@ export default function AppShell({ title, subtitle, children }) {
           ))}
           
           <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
-            <button className="ghost-button" onClick={logout} style={{ width: '100%', color: 'white', borderColor: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace' }}>
-              {isCollapsed ? '⏻' : 'Sign Out'}
+            {!isCollapsed && (
+              <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }}>
+                <button 
+                  onClick={() => setTheme('light')} 
+                  style={{ flex: 1, padding: '0.5rem', background: theme === 'light' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'light' ? 'var(--sidebar-bg)' : 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem' }}
+                  title="Light Theme"
+                >LIGHT</button>
+                <button 
+                  onClick={() => setTheme('system')} 
+                  style={{ flex: 1, padding: '0.5rem', background: theme === 'system' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'system' ? 'var(--sidebar-bg)' : 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem' }}
+                  title="System Theme"
+                >AUTO</button>
+                <button 
+                  onClick={() => setTheme('dark')} 
+                  style={{ flex: 1, padding: '0.5rem', background: theme === 'dark' ? 'var(--sidebar-ink)' : 'transparent', color: theme === 'dark' ? 'var(--sidebar-bg)' : 'var(--sidebar-ink)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem' }}
+                  title="Dark Theme"
+                >DARK</button>
+              </div>
+            )}
+            <button className="ghost-button" onClick={logout} style={{ width: '100%', color: 'var(--sidebar-ink)', borderColor: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace' }}>
+              {isCollapsed ? '⏻' : 'Sign Out (Logout)'}
             </button>
           </div>
         </nav>
