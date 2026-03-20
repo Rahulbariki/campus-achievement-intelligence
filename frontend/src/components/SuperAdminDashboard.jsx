@@ -57,71 +57,78 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="panel" style={{ marginTop: '2rem' }}>
-      <div className="section-header">
-        <p className="eyebrow">System Administration</p>
-        <h3>Database Management</h3>
-        <p className="font-serif">Global tools for managing system collections, document rectification, and data maintenance.</p>
+      <div className="section-header" style={{ border: '1px solid var(--ink)', padding: '2rem', background: '#fcfcfc' }}>
+        <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.15em', marginBottom: '1rem' }}>LEVEL 5 ACCESS | DATABASE CONTROLLER</p>
+        <h3 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontFamily: '"Playfair Display", serif', textTransform: 'uppercase', marginBottom: '0.75rem' }}>SUPER ADMIN COMMAND CONSOLE</h3>
+        <p className="font-serif" style={{ fontSize: '1.05rem', lineHeight: '1.5', opacity: '0.9', maxWidth: '800px' }}>Global override authority for document rectification, audit trail management, and systemic data hygiene.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '2rem', marginTop: '2rem' }}>
-        <aside style={{ borderRight: '1px solid var(--line)', paddingRight: '2rem' }}>
-          <p className="eyebrow" style={{ marginBottom: '1rem' }}>Collections</p>
-          <nav className="sidebar-nav">
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '2rem', marginTop: '2rem' }}>
+        <aside>
+          <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.1em', marginBottom: '1rem' }}>SYSTEM COLLECTIONS</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderLeft: '1px solid var(--ink)', paddingLeft: '1rem' }}>
             {collections.map(c => (
               <button key={c} 
                  onClick={() => { setSelectedCollection(c); fetchCollectionData(c); }}
-                 className={`workspace-menu-button ${selectedCollection === c ? 'active' : ''}`}
+                 className={`ghost-button ${selectedCollection === c ? 'active' : ''}`}
                  style={{ 
-                   display: 'block',
-                   width: '100%',
                    textAlign: 'left',
-                   marginBottom: '0.5rem',
-                   fontSize: '0.8rem',
-                   textTransform: 'capitalize'
+                   fontSize: '0.85rem',
+                   textTransform: 'uppercase',
+                   fontFamily: '"JetBrains Mono", monospace',
+                   border: selectedCollection === c ? '1px solid var(--ink)' : '1px solid transparent',
+                   background: selectedCollection === c ? 'var(--paper-strong)' : 'transparent',
+                   padding: '0.75rem',
+                   cursor: 'pointer'
                  }}>
                 {c.replace('_', ' ')}
               </button>
             ))}
-          </nav>
+          </div>
         </aside>
 
         <main>
-          <div className="metadata" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-            <span>{selectedCollection ? `Collection: ${selectedCollection}` : 'Select a collection'}</span>
-            <span>{data.length} records found</span>
+          <div className="metadata" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid transparent' }}>
+            <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.1em' }}>
+              {selectedCollection ? `INSPECTING ${selectedCollection.toUpperCase()}` : 'SELECT COLLECTION TO INSPECT'}
+            </p>
+            <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.1em' }}>
+              {data.length} RECORDS CACHED
+            </p>
           </div>
 
           {loading ? (
-             <div style={{ padding: '4rem', textAlign: 'center' }}>
-               <p className="font-serif italic">Loading data...</p>
+             <div style={{ padding: '4rem', textAlign: 'center', border: '1px solid var(--ink)' }}>
+               <p className="font-serif italic">Loading data streams...</p>
              </div>
           ) : (
-            <div className="table-container" style={{ maxHeight: '500px' }}>
-              <table>
-                <thead>
+             <div className="table-container" style={{ border: '1px solid var(--ink)', maxHeight: '600px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ background: '#f5f5f5', borderBottom: '1px solid var(--ink)' }}>
                   <tr>
-                    <th>ID</th>
-                    <th>Data Summary</th>
-                    <th>Actions</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase' }}>OBJECT_ID</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase' }}>DATA_PAYLOAD_MAP</th>
+                    <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase' }}>OPERATIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.map(doc => (
-                    <tr key={doc._id}>
-                      <td className="font-mono" style={{ fontSize: '0.7rem' }}>{doc._id}</td>
-                      <td className="font-mono" style={{ fontSize: '0.7rem', maxWidth: '350px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <tr key={doc._id} style={{ borderBottom: '1px solid #eaeaea' }}>
+                      <td style={{ padding: '1rem', fontSize: '0.75rem', fontFamily: '"JetBrains Mono", monospace', verticalAlign: 'top' }}>{doc._id}</td>
+                      <td style={{ padding: '1rem', fontSize: '0.75rem', fontFamily: '"JetBrains Mono", monospace', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', verticalAlign: 'top' }}>
                         {JSON.stringify(doc)}
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="small-btn" onClick={() => setEditingDoc(doc)}>Edit</button>
-                          <button className="small-btn btn-danger" onClick={() => handleDelete(doc._id)}>Delete</button>
+
+                      <td style={{ padding: '1rem', textAlign: 'right', verticalAlign: 'top' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', border: '1px solid var(--ink)', background: 'transparent', cursor: 'pointer' }} onClick={() => setEditingDoc(doc)}>EDIT</button>
+                          <button style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', border: '1px solid #d9534f', color: '#d9534f', background: 'transparent', cursor: 'pointer' }} onClick={() => handleDelete(doc._id)}>WARN</button>
                         </div>
                       </td>
                     </tr>
                   ))}
                   {data.length === 0 && (
-                    <tr><td colSpan="3" style={{ textAlign: 'center', padding: '3rem', fontStyle: 'italic' }}>No records found in this collection.</td></tr>
+                    <tr><td colSpan="3" style={{ textAlign: 'center', padding: '4rem', fontStyle: 'italic', fontFamily: '"Playfair Display", serif', fontSize: '1.1rem' }}>No data streams found for this collection.</td></tr>
                   )}
                 </tbody>
               </table>

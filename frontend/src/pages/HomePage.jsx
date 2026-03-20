@@ -22,21 +22,22 @@ export default function HomePage() {
 
   return (
     <div className="landing-shell">
-      <section className="landing-hero">
-        <p className="eyebrow">Enterprise Intelligence</p>
-        <h1>Campus Achievement Intelligence</h1>
-        <p className="landing-copy">
-          The central hub for tracking, verifying, and analyzing campus achievements.
-          Automated verification, real-time analytics, and AI-driven growth insights.
+      <section className="landing-hero" style={{ border: '1px solid var(--ink)', padding: '2rem', marginBottom: '1rem', background: '#fcfcfc' }}>
+        <p className="eyebrow" style={{ color: '#d9534f', letterSpacing: '0.15em', marginBottom: '1rem' }}>CAMPUS ACHIEVEMENT INTELLIGENCE PLATFORM</p>
+        <h1 style={{ fontSize: 'clamp(4rem, 8vw, 6.5rem)', fontFamily: '"Playfair Display", serif', lineHeight: 0.95, letterSpacing: '-0.02em', marginBottom: '1.5rem', wordBreak: 'keep-all' }}>
+          Track achievement, verify proof, and turn campus momentum into visible outcomes.
+        </h1>
+        <p className="landing-copy" style={{ fontSize: '1.05rem', fontFamily: '"Inter", sans-serif', opacity: 0.8, maxWidth: '900px', marginBottom: '2rem' }}>
+          CAIP is a full-stack starter platform for student achievement intelligence with role-based workflows, certificate handling, analytics, and AI-powered storytelling.
         </p>
 
-        <div className="cta-row">
-          <Link className="primary-button" to={isAuthenticated ? dashboardPath : '/login'}>
-            {isAuthenticated ? 'Go to Dashboard' : 'Sign In'}
+        <div className="cta-row" style={{ display: 'flex', gap: '1rem' }}>
+          <Link className="primary-button" style={{ textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.75rem', letterSpacing: '0.1em' }} to={isAuthenticated ? dashboardPath : '/login'}>
+            OPEN WORKSPACE
           </Link>
-          <Link className="ghost-button" to="/login">
-            Register Portal
-          </Link>
+          <a className="ghost-button" style={{ textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.75rem', letterSpacing: '0.1em' }} href="#architecture">
+            EXPLORE ARCHITECTURE
+          </a>
         </div>
       </section>
 
