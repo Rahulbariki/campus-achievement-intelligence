@@ -72,28 +72,34 @@ h1, h2, h3, h4 {
   position: sticky;
   top: 0;
   height: 100vh;
-  width: 280px;
+  width: 256px;
   background: var(--ink);
   color: var(--paper);
   display: flex;
   flex-direction: column;
-  padding: 2rem 1.5rem;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s;
+  padding: 2rem 1.25rem;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease-in-out;
   flex-shrink: 0;
   z-index: 100;
   overflow: hidden;
 }
 
 .workspace-sidebar.is-collapsed {
-  width: 72px;
+  width: 68px;
   padding: 2rem 0.5rem;
+}
+
+.workspace-sidebar .brand-lockup p,
+.workspace-sidebar .user-card,
+.workspace-sidebar .sidebar-nav span {
+  transition: opacity 0.3s ease, visibility 0.3s;
 }
 
 .workspace-sidebar.is-collapsed .brand-lockup p,
 .workspace-sidebar.is-collapsed .user-card,
-.workspace-sidebar.is-collapsed .sidebar-nav span,
-.workspace-sidebar.is-collapsed .sidebar-nav a {
+.workspace-sidebar.is-collapsed .sidebar-nav span {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
